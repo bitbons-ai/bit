@@ -28,10 +28,10 @@ bit version
 bit new my-cool-project
 ```
 
-### Run local development
+### Start development environment
 
 ```bash
-bit dev
+bit start
 ```
 
 ### Deploy to production
