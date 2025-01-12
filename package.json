@@ -24,8 +24,8 @@
     "ora": "^8.0.1"
   },
   "devDependencies": {
-    "get-port": "^7.0.0",
     "execa": "^8.0.1",
+    "get-port": "^7.0.0",
     "strip-ansi": "^7.1.0"
   },
   "engines": {
