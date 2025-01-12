@@ -6,7 +6,11 @@
   "bin": {
     "bit": "./src/cli.js"
   },
-  "scripts": {},
+  "scripts": {
+    "test:pb": "node src/test/pb-test-sequence.js",
+    "test:new": "node src/test/new-test-sequence.js",
+    "test": "npm run test:new && npm run test:pb"
+  },
   "keywords": [
     "cli",
     "astro",

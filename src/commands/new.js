@@ -7,19 +7,20 @@ import path from "path";
 import generatePackageJson from "../templates/pb-package.json.js";
 import generateDockerfile from "../templates/dockerfile.js";
 import generateFlyToml from "../templates/fly.toml.js";
+import generateGithubWorkflow from "../templates/deploy.yml.js";
 
 async function getLatestPocketBaseVersion() {
   try {
     const response = await fetch(
-      "https://api.github.com/repos/pocketbase/pocketbase/releases/latest"
+      "https://api.github.com/repos/pocketbase/pocketbase/releases/latest",
     );
     const data = await response.json();
     return data.tag_name.replace("v", "");
   } catch (error) {
     console.warn(
       kleur.yellow(
-        "Warning: Failed to fetch latest PocketBase version, falling back to default version"
-      )
+        "Warning: Failed to fetch latest PocketBase version, falling back to default version",
+      ),
     );
     return "0.22.25";
   }
@@ -44,11 +45,11 @@ async function createPocketBase(projectPath, projectName, spinner) {
   // Create .gitkeep files
   await writeFile(
     path.join(projectPath, "apps", "pb", "pb_migrations", ".gitkeep"),
-    ""
+    "",
   );
   await writeFile(
     path.join(projectPath, "apps", "pb", "pb_hooks", ".gitkeep"),
-    ""
+    "",
   );
 
   // Get PocketBase version
@@ -78,9 +79,11 @@ async function createPocketBase(projectPath, projectName, spinner) {
       files.map(([filePath, content]) =>
         writeFile(
           filePath,
-          typeof content === "string" ? content : JSON.stringify(content, null, 2)
-        )
-      )
+          typeof content === "string"
+            ? content
+            : JSON.stringify(content, null, 2),
+        ),
+      ),
     );
   } catch (error) {
     throw new Error(`Failed to write configuration files: ${error.message}`);
@@ -113,7 +116,7 @@ async function createAstro(projectPath, spinner) {
         {
           cwd: path.join(projectPath, "apps", "web"),
           stdio: "inherit",
-        }
+        },
       );
 
       process.on("close", (code) => {
@@ -131,19 +134,26 @@ async function createAstro(projectPath, spinner) {
 
     // Create additional directories
     spinner.text = "Creating additional Astro directories...";
-    await mkdir(path.join(projectPath, "apps", "web", "src", "components"), { recursive: true });
-    await mkdir(path.join(projectPath, "apps", "web", "src", "layouts"), { recursive: true });
+    await mkdir(path.join(projectPath, "apps", "web", "src", "components"), {
+      recursive: true,
+    });
+    await mkdir(path.join(projectPath, "apps", "web", "src", "layouts"), {
+      recursive: true,
+    });
 
     // Optionally add .gitkeep files to keep empty directories in git
-    await writeFile(path.join(projectPath, "apps", "web", "src", "components", ".gitkeep"), "");
-    await writeFile(path.join(projectPath, "apps", "web", "src", "layouts", ".gitkeep"), "");
-
+    await writeFile(
+      path.join(projectPath, "apps", "web", "src", "components", ".gitkeep"),
+      "",
+    );
+    await writeFile(
+      path.join(projectPath, "apps", "web", "src", "layouts", ".gitkeep"),
+      "",
+    );
   } catch (error) {
     throw new Error(`Failed to create Astro app: ${error.message}`);
   }
 }
-
-
 
 export async function createProject(name) {
   const projectPath = `./${name}`;
@@ -154,6 +164,9 @@ export async function createProject(name) {
     currentSpinner = ora("Creating project directories...").start();
     await mkdir(projectPath);
     await mkdir(path.join(projectPath, "apps"));
+    await mkdir(path.join(projectPath, ".github", "workflows"), {
+      recursive: true,
+    }); // Ensure workflows directory exists
     currentSpinner.succeed();
 
     // Create PocketBase setup
@@ -166,6 +179,14 @@ export async function createProject(name) {
     await createAstro(projectPath, currentSpinner);
     currentSpinner.succeed("Astro setup completed");
 
+    // Add GitHub workflow file
+    currentSpinner = ora("Setting up GitHub workflow...").start();
+    await writeFile(
+      path.join(projectPath, ".github", "workflows", "deploy_pocketbase.yml"),
+      generateGithubWorkflow(),
+    );
+    currentSpinner.succeed("GitHub workflow setup completed");
+
     // Final success message with CLI-based instructions
     console.log("\n" + kleur.bold("Project created successfully! 🎉"));
 
@@ -174,7 +195,7 @@ export async function createProject(name) {
     console.log(kleur.blue("  bit pb setup    # First-time PocketBase setup"));
     console.log(kleur.blue("  bit pb start    # Start PocketBase"));
     console.log(
-      kleur.blue("  bit start       # Start both PocketBase and Astro")
+      kleur.blue("  bit start       # Start both PocketBase and Astro"),
     );
 
     console.log("\n" + kleur.bold("Available endpoints:"));

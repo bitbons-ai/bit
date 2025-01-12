@@ -4,7 +4,6 @@ import kleur from "kleur";
 import process from "node:process";
 import { checkRequiredTools } from "./utils/check-tools.js";
 import { createProject } from "./commands/new.js";
-import { handleDockerCommand } from "./commands/docker.js";
 import { handleDbCommand } from "./commands/db.js";
 import { handlePocketBaseCommand } from "./commands/pb.js";
 import { handleStartCommand } from "./commands/start.js";
@@ -28,14 +27,9 @@ const cli = meow(
     ${kleur.blue("pb setup")}        First-time PocketBase setup
     ${kleur.blue("pb start")}        Start PocketBase
     ${kleur.blue("pb stop")}         Stop PocketBase
+    ${kleur.blue("pb logs")}         Show PocketBase logs
+    ${kleur.blue("pb shell")}        Access PocketBase shell
     ${kleur.blue("pb cleanup")}      Clean up containers and data
-
-    ${kleur.bold("Docker Commands:")}
-    ${kleur.blue("docker build")}    Build Docker image
-    ${kleur.blue("docker up")}       Start container
-    ${kleur.blue("docker down")}     Stop container
-    ${kleur.blue("docker logs")}     Show container logs
-    ${kleur.blue("docker shell")}    Access container shell
 
     ${kleur.bold("Database Commands:")}
     ${kleur.blue("db studio")}       Open PocketBase Admin UI
@@ -46,15 +40,13 @@ const cli = meow(
     ${kleur.green("$")} bit new my-awesome-app
     ${kleur.green("$")} bit pb setup
     ${kleur.green("$")} bit start
-    ${kleur.green("$")} bit docker logs
+    ${kleur.green("$")} bit pb logs -f
 
   ${kleur.gray("For more info, visit: https://github.com/bitbonsai/bit")}
 `,
   {
     importMeta: import.meta,
-    flags: {
-      // We'll add flags later as needed
-    },
+    flags: {},
     description: false,
   },
 );

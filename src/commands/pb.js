@@ -3,64 +3,48 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import kleur from "kleur";
 import ora from "ora";
+import path from "path";
+import fs from "fs";
+import { ContainerManager } from "../utils/container.js";
+import { isPortAvailable, getProcessUsingPort } from "../utils/ports.js";
 
 const execAsync = promisify(exec);
 
-async function isPortAvailable(port) {
-  try {
-    const { stdout } = await execAsync(`lsof -i :${port}`);
-    return stdout.trim() === "";
-  } catch (error) {
-    // If lsof command fails, it usually means no process is using the port
-    return true;
-  }
-}
+function getPocketBaseDir() {
+  // Check if we're in a bit project
+  const currentDir = process.cwd();
+  const pbDir = path.join(currentDir, "apps", "pb");
+  const pbDirAlt = path.join(currentDir, "pb"); // In case we're already in apps directory
 
-async function getProcessUsingPort(port) {
-  try {
-    const { stdout } = await execAsync(`lsof -i :${port} -t`);
-    return stdout.trim();
-  } catch (error) {
-    return null;
-  }
-}
-
-async function checkContainer(containerName) {
-  try {
-    const { stdout } = await execAsync(
-      `docker ps -a --filter "name=${containerName}" --format '{{.Names}}'`,
+  if (fs.existsSync(pbDir)) {
+    return pbDir;
+  } else if (fs.existsSync(pbDirAlt)) {
+    return pbDirAlt;
+  } else {
+    throw new Error(
+      "Not in a valid bit project directory. Navigate to project root or apps/pb directory.",
     );
-    return stdout.trim() !== "";
-  } catch (error) {
-    return false;
-  }
-}
-
-async function checkContainerRunning(containerName) {
-  try {
-    const { stdout } = await execAsync(
-      `docker ps --filter "name=${containerName}" --format '{{.Names}}'`,
-    );
-    return stdout.trim() !== "";
-  } catch (error) {
-    return false;
   }
 }
 
 export async function handlePocketBaseCommand(subcommand, args = []) {
   const spinner = ora().start();
-  const projectName = process.cwd().split("/").pop(); // Get current directory name
-  const containerName = `${projectName}-pb`;
-  const requiredPort = 8090;
 
   try {
+    const pbDir = getPocketBaseDir();
+    process.chdir(pbDir);
+
+    const projectName = path.basename(path.dirname(path.dirname(pbDir)));
+    const container = new ContainerManager(projectName);
+    const requiredPort = 8090;
+
     switch (subcommand) {
       case "setup": {
         spinner.text = "Installing PocketBase dependencies...";
-        await execAsync("npm install", { cwd: "apps/pb" });
+        await execAsync("npm install");
 
         spinner.text = "Building Docker image...";
-        await execAsync("npm run docker:build", { cwd: "apps/pb" });
+        await container.build();
         spinner.succeed("PocketBase setup completed");
         break;
       }
@@ -68,7 +52,6 @@ export async function handlePocketBaseCommand(subcommand, args = []) {
       case "start": {
         spinner.text = "Starting PocketBase...";
 
-        // Check if port is available
         if (!(await isPortAvailable(requiredPort))) {
           const pid = await getProcessUsingPort(requiredPort);
           spinner.fail(
@@ -84,38 +67,37 @@ export async function handlePocketBaseCommand(subcommand, args = []) {
           process.exit(1);
         }
 
-        // Check container status
-        const containerExists = await checkContainer(containerName);
-        const isRunning = await checkContainerRunning(containerName);
+        await container.start();
+        spinner.succeed("PocketBase is running");
+        console.log("\nAvailable at:");
+        console.log(kleur.green("  http://localhost:8090"));
+        console.log(kleur.green("  http://localhost:8090/_/") + " (Admin UI)");
+        break;
+      }
 
-        if (isRunning) {
-          spinner.info("PocketBase is already running");
-          console.log("\nAvailable at:");
-          console.log(kleur.green("  http://localhost:8090"));
-          console.log(
-            kleur.green("  http://localhost:8090/_/") + " (Admin UI)",
-          );
-          process.exit(0);
-        }
+      case "stop": {
+        spinner.text = "Stopping PocketBase...";
+        await container.stop();
+        spinner.succeed("PocketBase stopped");
+        break;
+      }
 
+      case "logs": {
+        spinner.stop();
+        const follow = args.includes("-f") || args.includes("--follow");
+        const { stdout } = await container.logs(follow);
+        console.log(stdout);
+        break;
+      }
+
+      case "shell": {
+        spinner.stop(); // Important: stop the spinner before interactive shell
         try {
-          if (containerExists) {
-            await execAsync("npm run docker:start", { cwd: "apps/pb" });
-          } else {
-            await execAsync("npm run docker:run", { cwd: "apps/pb" });
-          }
-
-          spinner.succeed("PocketBase is running");
-          console.log("\nAvailable at:");
-          console.log(kleur.green("  http://localhost:8090"));
-          console.log(
-            kleur.green("  http://localhost:8090/_/") + " (Admin UI)",
-          );
+          await container.shell();
         } catch (error) {
-          if (error.message.includes("port is already allocated")) {
-            spinner.fail("Port conflict detected");
-            console.log(kleur.yellow("\nTry these commands:"));
-            console.log(kleur.blue("  bit pb stop"));
+          if (error.message.includes("No such container")) {
+            console.error(kleur.red("Container is not running."));
+            console.log(kleur.yellow("\nTry starting it first:"));
             console.log(kleur.blue("  bit pb start"));
           } else {
             throw error;
@@ -124,37 +106,14 @@ export async function handlePocketBaseCommand(subcommand, args = []) {
         break;
       }
 
-      case "stop": {
-        spinner.text = "Stopping PocketBase...";
-        await execAsync("npm run docker:stop", { cwd: "apps/pb" });
-        spinner.succeed("PocketBase stopped");
-        break;
-      }
-
       case "cleanup": {
         spinner.text = "Cleaning up PocketBase...";
-
-        // Stop container if running
-        await execAsync(`docker stop ${containerName}`).catch(() => {});
-
-        // Remove container
-        await execAsync(`docker rm ${containerName}`).catch(() => {});
-
-        // Remove image if --all flag is provided
-        if (args.includes("--all")) {
-          spinner.text = "Removing Docker image...";
-          await execAsync(`docker rmi ${containerName}`).catch(() => {});
-        }
-
-        // Remove pb_data if --data flag is provided
-        if (args.includes("--data")) {
-          spinner.text = "Removing data...";
-          await execAsync("rm -rf apps/pb/pb_data/*").catch(() => {});
-        }
+        await container.cleanup({
+          all: args.includes("--all"),
+          data: args.includes("--data"),
+        });
 
         spinner.succeed("PocketBase cleaned up successfully");
-
-        // Show what was cleaned
         console.log("\nCleaned:");
         console.log(kleur.blue("  ✓ Stopped container"));
         console.log(kleur.blue("  ✓ Removed container"));
@@ -165,49 +124,25 @@ export async function handlePocketBaseCommand(subcommand, args = []) {
         break;
       }
 
-      case "logs": {
-        const follow = args.includes("-f") || args.includes("--follow");
-        spinner.stop(); // Stop spinner as we'll show logs
-
-        try {
-          if (follow) {
-            // Use spawn for continuous output
-            const { spawn } = require("child_process");
-            const logs = spawn("npm", ["run", "docker:logs:follow"], {
-              cwd: "apps/pb",
-              stdio: "inherit",
-            });
-
-            logs.on("error", (error) => {
-              console.error(kleur.red("Failed to get logs:", error.message));
-              process.exit(1);
-            });
-          } else {
-            const { stdout } = await execAsync("npm run docker:logs", {
-              cwd: "apps/pb",
-            });
-            console.log(stdout);
-          }
-        } catch (error) {
-          console.error(kleur.red("Failed to get logs:", error.message));
-          process.exit(1);
-        }
-        break;
-      }
-
       default: {
         spinner.fail(kleur.red(`Unknown PocketBase command: ${subcommand}`));
         console.log(kleur.blue("\nAvailable commands:"));
         console.log("  setup     First-time PocketBase setup");
         console.log("  start     Start PocketBase");
         console.log("  stop      Stop PocketBase");
-        console.log("  cleanup   Clean up PocketBase containers and data");
         console.log("  logs      Show PocketBase logs");
+        console.log("  shell     Access PocketBase shell");
+        console.log("  cleanup   Clean up PocketBase containers and data");
         process.exit(1);
       }
     }
   } catch (error) {
     spinner.fail(kleur.red(error.message));
+    if (error.message.includes("Not in a valid bit project directory")) {
+      console.log(kleur.yellow("\nMake sure you are in:"));
+      console.log(kleur.blue("  - The project root directory"));
+      console.log(kleur.blue("  - Or the apps/pb directory"));
+    }
     process.exit(1);
   }
 }

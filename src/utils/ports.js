@@ -1,5 +1,9 @@
-// utils/ports.js
-async function isPortAvailable(port) {
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+export async function isPortAvailable(port) {
   try {
     const { stdout } = await execAsync(`lsof -i :${port}`);
     return stdout.trim() === "";
@@ -9,7 +13,7 @@ async function isPortAvailable(port) {
   }
 }
 
-async function getProcessUsingPort(port) {
+export async function getProcessUsingPort(port) {
   try {
     const { stdout } = await execAsync(`lsof -i :${port} -t`);
     return stdout.trim();
