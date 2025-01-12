@@ -9,41 +9,55 @@ import { handlePocketBaseCommand } from "./commands/pb.js";
 import { handleStartCommand } from "./commands/start.js";
 import { handleVersionCommand } from "./commands/version.js";
 import { handleUpgradeCommand } from "./commands/upgrade.js";
+import { handleDeploySetup } from "./commands/deploy-setup.js";
 
 const cli = meow(
   `
-  ${kleur.cyan("🌱 bit")}  ${kleur.gray("Better Install This")}
+    ${kleur.cyan("🌱 bit")}  ${kleur.gray("Better Install This")}
 
-  ${kleur.bold("Usage:")}
-    ${kleur.green("$")} bit <command> [options]
+    ${kleur.bold("Usage:")}
+      ${kleur.green("$")} bit <command> [options]
 
-  ${kleur.bold("Commands:")}
-    ${kleur.blue("new")} [name]      Create a new project
-    ${kleur.blue("start")}          Start development environment
-    ${kleur.blue("version")}        Show current version
-    ${kleur.blue("upgrade")}        Upgrade to latest version
+    ${kleur.bold("Commands:")}
+      ${kleur.blue("new")} [name]      Create a new project
+      ${kleur.blue("start")}          Start development environment
+      ${kleur.blue("deploy")}         Deploy project
+      ${kleur.blue("version")}        Show current version
+      ${kleur.blue("upgrade")}        Upgrade to latest version
 
-    ${kleur.bold("PocketBase Commands:")}
-    ${kleur.blue("pb setup")}        First-time PocketBase setup
-    ${kleur.blue("pb start")}        Start PocketBase
-    ${kleur.blue("pb stop")}         Stop PocketBase
-    ${kleur.blue("pb logs")}         Show PocketBase logs
-    ${kleur.blue("pb shell")}        Access PocketBase shell
-    ${kleur.blue("pb cleanup")}      Clean up containers and data
+      ${kleur.bold("PocketBase Commands:")}
+      ${kleur.blue("pb setup")}        First-time PocketBase setup
+      ${kleur.blue("pb start")}        Start PocketBase
+      ${kleur.blue("pb stop")}         Stop PocketBase
+      ${kleur.blue("pb logs")}         Show PocketBase logs
+      ${kleur.blue("pb shell")}        Access PocketBase shell
+      ${kleur.blue("pb cleanup")}      Clean up containers and data
 
-    ${kleur.bold("Database Commands:")}
-    ${kleur.blue("db studio")}       Open PocketBase Admin UI
-    ${kleur.blue("db backup")}       Create database backup
-    ${kleur.blue("db migrate")}      Create new migration
+      ${kleur.bold("Database Commands:")}
+      ${kleur.blue("db studio")}       Open PocketBase Admin UI
+      ${kleur.blue("db backup")}       Create database backup
+      ${kleur.blue("db migrate")}      Create new migration
 
-  ${kleur.bold("Examples:")}
-    ${kleur.green("$")} bit new my-awesome-app
-    ${kleur.green("$")} bit pb setup
-    ${kleur.green("$")} bit start
-    ${kleur.green("$")} bit pb logs -f
+      ${kleur.bold("Deploy Commands:")}
+      ${kleur.blue("deploy")}          Deploy both PocketBase and Astro
+      ${kleur.blue("deploy setup")}    Configure deployment provider
+      ${kleur.blue("deploy --pb-only")}    Deploy only PocketBase
+      ${kleur.blue("deploy --web-only")}    Deploy only Astro
+      ${kleur.blue("deploy --provider")} [name]    Select deployment provider
 
-  ${kleur.gray("For more info, visit: https://github.com/bitbonsai/bit")}
-`,
+    ${kleur.bold("Examples:")}
+      ${kleur.green("$")} bit new my-awesome-app
+      ${kleur.green("$")} bit start
+      ${kleur.green("$")} bit deploy
+      ${kleur.green("$")} bit deploy --provider hetzner
+      ${kleur.green("$")} bit deploy setup hetzner
+
+    ${kleur.bold("Supported Providers:")}
+      • fly.io (default)
+      • Hetzner Cloud
+
+    ${kleur.gray("For more info, visit: https://github.com/bitbonsai/bit")}
+  `,
   {
     importMeta: import.meta,
     flags: {},
@@ -123,6 +137,25 @@ async function run() {
         process.exit(1);
       }
       await handleDbCommand(subcommand, args);
+      break;
+    }
+    case "deploy": {
+      const subcommand = cli.input[1];
+      const args = cli.input.slice(1);
+
+      if (subcommand === "setup") {
+        const provider = cli.input[2];
+        if (!provider) {
+          console.error(kleur.red("Provider name is required for setup"));
+          console.log(kleur.yellow("\nSupported providers:"));
+          console.log(kleur.blue("  • fly.io (default)"));
+          console.log(kleur.blue("  • hetzner"));
+          process.exit(1);
+        }
+        await handleDeploySetup(provider);
+      } else {
+        await handleDeployCommand(args);
+      }
       break;
     }
     default: {
