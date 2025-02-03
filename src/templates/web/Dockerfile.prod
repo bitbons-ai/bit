@@ -19,7 +19,9 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Use more universal user creation method
+RUN addgroup --system appgroup && \
+    adduser --system --no-create-home --ingroup appgroup appuser
 
 WORKDIR /app
 

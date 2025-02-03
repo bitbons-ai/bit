@@ -1,4 +1,4 @@
-app = "{{name}}"
+app = "{{name}}-web"
 primary_region = "ams"
 
 [build]

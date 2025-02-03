@@ -1,11 +1,26 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import PocketBase from 'pocketbase';
 
 const title = `Welcome to {{name}}`;
+
+let connectionStatus = 'Connecting...';
+let connectionColor = 'blue';
+
+try {
+  const pb = new PocketBase(import.meta.env.POCKETBASE_URL || 'https://{{name}}-pb.fly.dev');
+  await pb.health.check();
+  connectionStatus = 'Successfully connected to PocketBase!';
+  connectionColor = 'green';
+} catch (error) {
+  connectionStatus = `Failed to connect to PocketBase: ${error.message}`;
+  connectionColor = 'red';
+}
 ---
 
 <Layout title={title}>
   <main>
+
     <h1>Welcome to {{name}}</h1>
     <p>
       This project was created with <code>bit</code>. Edit this page in <code>src/pages/index.astro</code>
@@ -37,6 +52,10 @@ const title = `Welcome to {{name}}`;
       <li>Style your app in <code>src/css</code></li>
       <li>Access PocketBase Admin UI at <a href="http://localhost:8090/_/">http://localhost:8090/_/</a></li>
     </ul>
+    <div class={`callout ${connectionColor}`}>
+      <h3>PocketBase Connection</h3>
+      <p>{connectionStatus}</p>
+    </div>
   </main>
 </Layout>
 
@@ -97,5 +116,33 @@ const title = `Welcome to {{name}}`;
 
   a:hover {
     text-decoration: underline;
+  }
+
+  .callout {
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .blue { 
+    background-color: #e6f2ff; 
+    border: 2px solid #3498db; 
+    color: #2980b9; 
+  }
+
+  .green { 
+    background-color: #e6f9f0; 
+    border: 2px solid #2ecc71; 
+    color: #27ae60; 
+  }
+
+  .red { 
+    background-color: #fff0f0; 
+    border: 2px solid #e74c3c; 
+    color: #c0392b; 
   }
 </style>
