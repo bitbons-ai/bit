@@ -21,7 +21,9 @@
   "author": "bitbonsai",
   "license": "MIT",
   "dependencies": {
+    "@clack/prompts": "^0.9.1",
     "commander": "^11.1.0",
+    "execa": "^9.5.2",
     "inquirer": "^9.2.12",
     "kleur": "^4.1.5",
     "ora": "^7.0.1"

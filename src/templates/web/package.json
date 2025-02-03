@@ -3,10 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev --host",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "dev": "bun run astro dev --host",
+    "start": "bun run astro dev",
+    "build": "bun run astro build",
+    "preview": "bun run astro preview"
   },
   "dependencies": {
     "@astrojs/node": "^7.0.4",
