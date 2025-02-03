@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "4321:4321"
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    environment:
+      - POCKETBASE_URL=http://0.0.0.0:8090
+    depends_on:
+      - pocketbase
+
+  pocketbase:
+    build:
+      context: ./apps/pb
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - pb_data:/pb/pb_data
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pb_data:
+    name: pb_data

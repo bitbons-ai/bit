@@ -1,0 +1,22 @@
+app = "{{name}}-pb"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[[mounts]]
+  source = "pb_data"
+  destination = "/pb/pb_data"
+
+[http_service]
+  internal_port = 8090
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

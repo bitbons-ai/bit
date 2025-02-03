@@ -1,0 +1,40 @@
+---
+interface Props {
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+}
+
+const { 
+  type = 'button',
+  class: className = '',
+}: Props = Astro.props;
+---
+
+<button 
+  type={type}
+  class:list={['button', className]}
+>
+  <slot />
+</button>
+
+<style>
+  .button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .button:hover {
+    background-color: #2563eb;
+  }
+
+  .button:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+</style>

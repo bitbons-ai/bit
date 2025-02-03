@@ -1,0 +1,29 @@
+{
+  "name": "@mauricio.wolff/bit",
+  "version": "2.0.0",
+  "description": "🌱 bit - Better Install This. A CLI tool for scaffolding modern web projects with monorepo structure, Docker Compose, PocketBase, and Astro.",
+  "main": "src/cli.js",
+  "type": "module",
+  "bin": {
+    "bit": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "monorepo",
+    "docker",
+    "pocketbase",
+    "astro"
+  ],
+  "author": "bitbonsai",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12",
+    "kleur": "^4.1.5",
+    "ora": "^7.0.1"
+  }
+}

@@ -1,0 +1,101 @@
+---
+import Layout from '@layouts/Layout.astro';
+
+const title = `Welcome to {{name}}`;
+---
+
+<Layout title={title}>
+  <main>
+    <h1>Welcome to {{name}}</h1>
+    <p>
+      This project was created with <code>bit</code>. Edit this page in <code>src/pages/index.astro</code>
+    </p>
+
+    <h2>Project Structure</h2>
+    <pre>
+      /
+      ├── apps/
+      │   ├── web/                # Astro application
+      │   │   ├── src/
+      │   │   │   ├── components/ # UI components
+      │   │   │   ├── css/        # Global styles
+      │   │   │   ├── layouts/    # Page layouts
+      │   │   │   ├── lib/        # Shared utilities
+      │   │   │   └── pages/      # Application routes
+      │   │   └── public/         # Static assets
+      │   └── pb/                 # PocketBase instance
+      │       ├── pb_data/        # Database files
+      │       └── pb_migrations/  # Database migrations
+      ├── package.json
+      └── docker-compose.yml
+    </pre>
+
+    <h2>Next Steps</h2>
+    <ul>
+      <li>Edit this page in <code>src/pages/index.astro</code></li>
+      <li>Add your components in <code>src/components</code></li>
+      <li>Style your app in <code>src/css</code></li>
+      <li>Access PocketBase Admin UI at <a href="http://localhost:8090/_/">http://localhost:8090/_/</a></li>
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    font-size: 20px;
+    line-height: 1.6;
+  }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1em;
+    color: #2e2e2e;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2rem 0 1rem;
+    color: #2e2e2e;
+  }
+
+  pre {
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f4f4f4;
+    font-size: 0.85em;
+    overflow-x: auto;
+  }
+
+  code {
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-family: var(--font-mono);
+    background: #f4f4f4;
+  }
+
+  ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin: 0.5rem 0;
+  }
+
+  a {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
