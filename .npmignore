@@ -1,0 +1,40 @@
+# Ignore development and git files
+.git
+.gitignore
+node_modules/
+*.log
+.DS_Store
+
+# Ignore test and development files
+test/
+examples/
+*.test.js
+*.spec.js
+
+# Ignore documentation and media
+README.md
+*.gif
+*.mp4
+
+# Ignore configuration files
+.eslintrc
+.prettierrc
+tsconfig.json
+
+# Ignore build and temporary directories
+build/
+dist/
+tmp/
+temp/
+
+# Ignore environment files
+.env
+.env.local
+.env.development
+.env.test
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
