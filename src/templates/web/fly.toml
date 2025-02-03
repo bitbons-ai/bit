@@ -2,7 +2,7 @@ app = "{{name}}"
 primary_region = "ams"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "Dockerfile.prod"
 
 [http_service]
   internal_port = 4321
@@ -14,6 +14,7 @@ primary_region = "ams"
 
 [env]
   POCKETBASE_URL = "https://data.{{name}}.fly.dev"
+  NODE_ENV = "production"
 
 [[vm]]
   memory = "1gb"

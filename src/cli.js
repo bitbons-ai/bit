@@ -8,6 +8,7 @@ import { checkForUpdates, getCurrentVersion } from './utils/version.js';
 // Commands
 import { newCommand } from './commands/new.js';
 import { startCommand } from './commands/start.js';
+import { stopCommand } from './commands/stop.js';
 import { deployCommand } from './commands/deploy.js';
 
 const program = new Command();
@@ -25,6 +26,7 @@ async function main() {
   // Register commands
   newCommand(program);
   startCommand(program);
+  stopCommand(program);
   deployCommand(program);
 
   // Parse arguments

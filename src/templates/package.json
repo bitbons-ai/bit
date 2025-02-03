@@ -1,0 +1,15 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up",
+    "build": "docker compose build",
+    "down": "docker compose down",
+    "stop": "docker compose stop",
+    "start": "docker compose start",
+    "deploy": "npm run deploy:web && npm run deploy:pb",
+    "deploy:web": "cd apps/web && fly deploy",
+    "deploy:web:fresh": "cd apps/web && rm -rf node_modules && rm -rf package-lock.json && npm install && npm run build && fly deploy",
+    "deploy:pb": "cd apps/pb && fly deploy"
+  }
+}

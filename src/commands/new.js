@@ -6,6 +6,7 @@ import path from 'path';
 import net from 'net';
 import { fileURLToPath } from 'url';
 import { intro, outro, text, password, isCancel } from '@clack/prompts';
+import fetch from 'node-fetch';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,7 +94,7 @@ async function verifyDockerEnvironment() {
       process.exit(1);
     }
     
-    spinner.succeed(kleur.blue('✔ Docker environment ready'));
+    spinner.succeed(kleur.blue('Docker environment ready'));
   } catch (error) {
     spinner.fail(kleur.red('Failed to verify Docker environment'));
     console.error(error.message);
@@ -123,58 +124,79 @@ function validateEmail(email) {
 }
 
 async function getPocketBaseCredentials() {
-  let email;
-  while (!email) {
-    email = await text({
-      message: 'Enter superuser email:',
-      validate: (value) => {
-        if (!validateEmail(value)) {
-          return 'Please enter a valid email address';
-        }
-      }
-    });
+  try {
+    // Try to read from config file first
+    const homedir = (await import('os')).homedir();
+    const configPath = path.join(homedir, '.bit-conf.json');
     
+    try {
+      const config = JSON.parse(await fs.readFile(configPath, 'utf-8'));
+      if (config.pocketbase?.admin?.email && config.pocketbase?.admin?.password) {
+        return {
+          email: config.pocketbase.admin.email,
+          pass: config.pocketbase.admin.password
+        };
+      }
+    } catch (err) {
+      // Config file doesn't exist or is invalid, continue with prompts
+    }
+
+    // If no config file, prompt for credentials
+    console.log(kleur.cyan('\n🔐  PocketBase Admin Setup'));
+    console.log(kleur.white('These credentials will be used to access the PocketBase Admin UI'));
+    console.log(kleur.white('where you can manage your database, collections and files.\n'));
+
+    const email = await text({
+      message: 'Enter admin email:',
+      validate: validateEmail,
+    });
+
     if (isCancel(email)) {
       process.exit(1);
     }
-  }
 
-  const pass = await password({
-    message: 'Enter superuser password:',
-  });
-  
-  if (isCancel(pass)) {
+    const pass = await password({
+      message: 'Enter admin password:',
+      validate: (value) => {
+        if (value.length < 8) return 'Password must be at least 8 characters';
+        return;
+      },
+    });
+
+    if (isCancel(pass)) {
+      process.exit(1);
+    }
+
+    return { email, pass };
+  } catch (error) {
+    console.error(kleur.red('Error getting PocketBase credentials:'), error);
     process.exit(1);
   }
-
-  return { email, pass };
 }
 
-async function createPocketBaseStructure(projectPath, version) {
-  const pbPath = path.join(projectPath, 'apps', 'pb');
+async function createProjectStructure(projectPath, name, options) {
+  console.log('Creating base directories...');
+  // Create base directories
+  await fs.mkdir(projectPath, { recursive: true });
+  await fs.mkdir(path.join(projectPath, 'apps'), { recursive: true });
   
-  // Create directory structure
-  await fs.mkdir(pbPath, { recursive: true });
-  await fs.mkdir(path.join(pbPath, 'pb_data'), { recursive: true });
-  await fs.mkdir(path.join(pbPath, 'pb_migrations'), { recursive: true });
+  console.log('Copying root files...');
+  // Copy root level files
+  const rootFiles = ['package.json', 'docker-compose.yml', 'README.md'];
+  for (const file of rootFiles) {
+    let content = await fs.readFile(path.join(TEMPLATES_DIR, file), 'utf-8');
+    content = content.replace(/{{name}}/g, name);
+    await fs.writeFile(path.join(projectPath, file), content);
+  }
 
-  // Copy Dockerfile and fly.toml
-  await copyDir(
-    path.join(TEMPLATES_DIR, 'pb'),
-    pbPath
-  );
-}
-
-async function createAstroStructure(projectPath, version) {
-  const webPath = path.join(projectPath, 'apps', 'web');
-  
-  // Create web directory
+  console.log('Creating Astro project...');
+  // Create and initialize Astro project
+  const webPath = path.join(projectPath, 'apps/web');
   await fs.mkdir(webPath, { recursive: true });
-
-  // Initialize Astro project using npm create
-  console.log(kleur.blue('\nInitializing Astro project...'));
-  try {
-    const { spawn } = await import('child_process');
+  
+  // Initialize Astro project
+  const { spawn } = await import('child_process');
+  await new Promise((resolve, reject) => {
     const astroInit = spawn(
       "npm",
       [
@@ -182,43 +204,121 @@ async function createAstroStructure(projectPath, version) {
         "astro@latest",
         ".",
         "--",
-        "--skip-houston",
+        "--template=minimal",
         "--no-git",
         "--no-install",
-        "--no-typescript",
-        "--template=minimal",
-        "--yes"
+        "--typescript"
       ],
       {
         cwd: webPath,
-        stdio: "inherit",
+        stdio: "inherit"
       }
     );
 
-    // Wait for the process to complete
-    await new Promise((resolve, reject) => {
-      astroInit.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Astro initialization failed with code ${code}`));
-        }
-      });
-      astroInit.on('error', reject);
+    astroInit.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Astro initialization failed with code ${code}`));
+      }
     });
+    astroInit.on('error', reject);
+  });
+
+  // Get latest versions for all dependencies
+  const versions = await getAllDependencyVersions();
+
+  console.log('Copying template files...');
+  // Copy our template files over the base Astro project
+  await copyDir(
+    path.join(TEMPLATES_DIR, 'web'),
+    webPath,
+    { name, ...versions }
+  );
+
+  console.log('Setting up PocketBase...');
+  // Create and copy PocketBase files
+  const pbPath = path.join(projectPath, 'apps/pb');
+  await fs.mkdir(pbPath, { recursive: true });
+  await copyDir(
+    path.join(TEMPLATES_DIR, 'pb'),
+    pbPath,
+    { name, pbVersion: options.pb }
+  );
+
+  // Get PocketBase credentials and update docker-compose environment
+  const pbCreds = await getPocketBaseCredentials();
+  const envContent = `SUPERUSER_EMAIL=${pbCreds.email}\nSUPERUSER_PASSWORD=${pbCreds.pass}`;
+  await fs.writeFile(path.join(projectPath, '.env'), envContent);
+
+  console.log('Creating additional directories...');
+  // Create essential directories (if they don't exist)
+  const dirs = [
+    'apps/web/src/components',
+    'apps/web/src/css',
+    'apps/web/src/layouts',
+    'apps/web/src/lib',
+    'apps/web/src/pages',
+    'apps/web/public',
+    'apps/pb/pb_data',
+    'apps/pb/pb_migrations'
+  ];
+
+  for (const dir of dirs) {
+    await fs.mkdir(path.join(projectPath, dir), { recursive: true });
+  }
+  console.log('Project structure creation complete.');
+}
+
+async function getLatestPackageVersion(packageName) {
+  try {
+    const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`);
+    const data = await response.json();
+    return data.version;
   } catch (error) {
-    console.error(kleur.red('Failed to initialize Astro project:'), error);
-    throw error;
+    console.warn(`Failed to fetch latest version for ${packageName}, using fallback version`);
+    return null;
+  }
+}
+
+async function getAllDependencyVersions() {
+  const [astroVersion, astroNodeVersion, astroIconVersion, pocketbaseVersion] = await Promise.all([
+    getLatestPackageVersion('astro'),
+    getLatestPackageVersion('@astrojs/node'),
+    getLatestPackageVersion('astro-icon'),
+    getLatestPackageVersion('pocketbase')
+  ]);
+
+  return {
+    astroVersion: astroVersion || '5.2.3',
+    astroNodeVersion: astroNodeVersion || '9.0.2',
+    astroIconVersion: astroIconVersion || '1.1.5',
+    pocketbaseVersion: pocketbaseVersion || '0.25.1'  
+  };
+}
+
+async function getLatestAstroVersion() {
+  const version = await getLatestPackageVersion('astro');
+  return version || '4.2.1';
+}
+
+async function getLatestPocketBaseVersion() {
+  try {
+    const response = await fetch('https://api.github.com/repos/pocketbase/pocketbase/releases/latest');
+    const data = await response.json();
+    return data.tag_name.replace('v', '');
+  } catch (error) {
+    console.warn('Failed to fetch latest PocketBase version, using fallback version');
+    return '0.25.1';
   }
 }
 
 export function newCommand(program) {
   program
-    .command('new')
+    .command('new <project-name>')
     .description('Create a new project')
-    .argument('<name>', 'Project name')
-    .option('--pb <version>', 'PocketBase version', '0.25.1')
-    .option('--astro <version>', 'Astro version', '5.1.8')
+    .option('--pb <version>', 'PocketBase version', async () => await getLatestPocketBaseVersion())
+    .option('--astro <version>', 'Astro version', async () => await getLatestAstroVersion())
     .action(async (name, options) => {
       try {
         intro(kleur.cyan('🌱 Creating your new project...'));
@@ -235,37 +335,45 @@ export function newCommand(program) {
         
         const projectPath = path.resolve(process.cwd(), name);
         
-        // PocketBase setup
-        const pbSpinner = ora('Installing PocketBase...').start();
-        await createPocketBaseStructure(projectPath, options.pb);
-        pbSpinner.succeed(kleur.blue('✔ PocketBase installed'));
+        // Create project structure
+        const structureSpinner = ora('Creating project...').start();
+        await createProjectStructure(projectPath, name, options);
+        structureSpinner.succeed(kleur.blue('Project structure created'));
         
-        // Astro setup
-        const astroSpinner = ora('Installing Astro...').start();
-        await createAstroStructure(projectPath, options.astro);
-        astroSpinner.succeed(kleur.blue('✔ Astro installed with bit\'s template'));
-        
-        // Create .env.development
+        // Create environment files
         const envSpinner = ora('Creating environment files...').start();
+        
+        // Root environment with PocketBase credentials
         await fs.writeFile(
-          path.join(projectPath, 'apps/pb/.env.development'),
+          path.join(projectPath, '.env.development'),
           `SUPERUSER_EMAIL=${email}\nSUPERUSER_PASSWORD=${pass}\n`
         );
-        envSpinner.succeed(kleur.blue('✔ Environment files created'));
         
-        // Install dependencies
-        const depsSpinner = ora('Installing dependencies...').start();
+        envSpinner.succeed(kleur.blue('Environment files created'));
+        
+        // Create package-lock.json for version locking
+        const depsSpinner = ora('Creating package-lock.json...').start();
         const { execa } = await import('execa');
-        await execa('bun', ['install'], { cwd: projectPath });
-        await execa('bun', ['install'], { cwd: path.join(projectPath, 'apps/web') });
-        depsSpinner.succeed(kleur.blue('✔ Dependencies installed'));
+        const webPath = path.join(projectPath, 'apps/web');
         
-        outro(kleur.green('\n✨ Project created successfully!\n'));
-        console.log(kleur.cyan('Next steps:'));
-        console.log(kleur.white(`  cd ${name}`));
-        console.log(kleur.white('  bun run dev    # Start development environment'));
-        console.log(kleur.white('\nPocketBase admin UI will be available at:'));
-        console.log(kleur.white('  http://localhost:8090/_/'));
+        try {
+          await execa('npm', ['install', '--package-lock-only'], { 
+            cwd: webPath,
+            timeout: 30000 // 30 second timeout
+          });
+          
+          depsSpinner.succeed(kleur.blue('Package lock file created'));
+        } catch (error) {
+          depsSpinner.fail(kleur.yellow('Warning: Failed to create package-lock.json. Continuing without it.'));
+          console.warn(kleur.gray('This is not critical - dependencies will be installed when you run the project.'));
+        }
+        
+        outro(kleur.green('\n✨ Project created successfully!'));
+        console.log(kleur.cyan().bold('Next steps:'));
+        console.log('  ', kleur.gray('$'), kleur.white(`cd ${name}`));
+        console.log('  ', kleur.gray('$'), kleur.white('bun run dev'), kleur.gray('# Start development environment'));
+        console.log('  ', kleur.cyan().bold('\n📦 PocketBase admin UI will be available at:'));
+        console.log(kleur.white('🔗  http://localhost:8090/_/'));
         
       } catch (error) {
         console.error(kleur.red('\nError:'), error.message);

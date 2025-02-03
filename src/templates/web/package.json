@@ -3,15 +3,15 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "bun run astro dev --host",
+    "dev": "bun run astro dev --host 0.0.0.0",
     "start": "bun run astro dev",
     "build": "bun run astro build",
     "preview": "bun run astro preview"
   },
   "dependencies": {
-    "@astrojs/node": "^7.0.4",
-    "astro": "^4.2.1",
-    "astro-icon": "^1.0.2",
-    "pocketbase": "^0.19.0"
+    "@astrojs/node": "{{astroNodeVersion}}",
+    "astro": "{{astroVersion}}",
+    "astro-icon": "{{astroIconVersion}}",
+    "pocketbase": "{{pocketbaseVersion}}"
   }
 }

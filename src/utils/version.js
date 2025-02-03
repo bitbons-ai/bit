@@ -31,8 +31,8 @@ export async function checkForUpdates() {
     }
 
     if (currentVersion !== latestVersion) {
-      console.log(kleur.yellow().bold('\nUpdate available! ') + kleur.yellow(`${currentVersion} → ${latestVersion}`));
-      console.log(kleur.yellow('Run: ') + kleur.white().bold('npm install -g @mauricio.wolff/bit') + kleur.yellow(' to update\n'));
+      console.log(kleur.yellow().bold('\n✨ Update available! ') + kleur.red(`${currentVersion} → `,) + kleur.green(`${latestVersion}`));
+      console.log(kleur.gray('Run: ') + kleur.cyan().bold('npm install -g @mauricio.wolff/bit') + kleur.gray(' to update\n'));
     }
   } catch (error) {
     // Silently fail version check
