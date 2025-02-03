@@ -7,7 +7,7 @@ A modern project scaffolding tool that creates a full-stack development environm
 - PocketBase integration
 - Astro app with a clean folder structure
 
-![bit](https://raw.githubusercontent.com/mauricio-wolff/bit/main/bit-new.gif)
+![Creating a project](https://github.com/bitbonsai/bit/blob/main/bit-new.gif?raw=true)
 
 ## Installation
 
