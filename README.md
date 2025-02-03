@@ -1,15 +1,13 @@
-# bit CLI
+# 🌱 Bit - Better Install This
 
 A modern project scaffolding tool that creates a full-stack development environment with:
+
 - Monorepo structure
 - Docker Compose setup
 - PocketBase integration
 - Astro app with a clean folder structure
 
-<video width="100%" controls>
-  <source src="bit-new.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![bit](https://raw.githubusercontent.com/mauricio-wolff/bit/main/bit-new.gif)
 
 ## Installation
 
