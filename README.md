@@ -41,6 +41,8 @@ Bit sets you up with a modern, battle-tested stack:
 - 🎨 Frontend: http://localhost:4321
 - ⚙️ Admin Dashboard: http://localhost:8090/\_/
 
+![Screenshot of default webapp](./bit-web.webp)
+
 ## 🎮 Command Center
 
 ### During Development
