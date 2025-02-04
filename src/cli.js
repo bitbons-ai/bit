@@ -10,6 +10,7 @@ import { newCommand } from './commands/new.js';
 import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { deployCommand } from './commands/deploy.js';
+import { daemonCommand } from './commands/daemon.js';
 
 const program = new Command();
 
@@ -28,6 +29,7 @@ async function main() {
   startCommand(program);
   stopCommand(program);
   deployCommand(program);
+  daemonCommand(program);
 
   // Parse arguments
   await program.parseAsync(process.argv);
