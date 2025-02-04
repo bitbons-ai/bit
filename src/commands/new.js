@@ -136,12 +136,12 @@ async function getPocketBaseCredentials() {
   try {
     // Try to read from config file first
     const homedir = (await import('os')).homedir();
-    const configPath = path.join(homedir, '.bit-conf.json');
+    const configPath = path.join(homedir, '.bit.conf');
     
     try {
       const config = JSON.parse(await fs.readFile(configPath, 'utf-8'));
       if (config.pocketbase?.admin?.email && config.pocketbase?.admin?.password) {
-        console.log(kleur.cyan('\n🔐  Using PocketBase admin credentials from ~/.bit-conf.json'));
+        console.log(kleur.cyan('\n🔐  Using PocketBase admin credentials from ~/.bit.conf'));
         return {
           email: config.pocketbase.admin.email,
           pass: config.pocketbase.admin.password
@@ -220,7 +220,8 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
         "--template=minimal",
         "--no-git",
         "--no-install",
-        "--typescript"
+        "--typescript",
+        "--fancy",
       ],
       {
         cwd: webPath,
