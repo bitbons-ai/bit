@@ -2,16 +2,17 @@
 
 **Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
 
-![Creating a project with bit](https://github.com/bitbonsai/bit/blob/main/bit-demo.gif?raw=true)
+![Creating a project with bit](./bit-demo.gif)
 
 ## ✨ What's in the Box?
 
 Bit sets you up with a modern, battle-tested stack:
 
-- 🏗️ **Monorepo** - Simple, organized and scalable from day one (apps/pb and apps/web)
-- 🐳 **Docker-Powered** - Development environment that "just works"
-- 🚀 **PocketBase Backend** - Full-featured backend with admin UI
-- ⭐ **Astro Frontend** - Blazing-fast web performance for pages and api endpoints (SSR by default on bit)
+- 🌿 **Monorepo** - Simple, organized and scalable from day one (apps/pb and apps/web)
+- 🐋 **Docker-Powered** - Development environment that "just works"
+- 📦 **PocketBase Backend** - Full-featured backend with admin UI
+- ✨ **Astro Frontend** - Blazing-fast web performance for pages and api endpoints (SSR by default on bit)
+- 🍞 **Bun** - Incredibly fast JavaScript runtime and toolkit for modern web development (powers bit's development experience)
 
 ## 🚀 Get Started in 30 Seconds
 
@@ -33,13 +34,13 @@ Bit sets you up with a modern, battle-tested stack:
    ```
    or
    ```bash
-   bit daemon # Runs in background, use bit stop later 
+   bit daemon # Runs in background, use bit stop later
    ```
 
 **That's it!** Visit your creation at:
 
-- 🎨 Frontend: http://localhost:4321
-- ⚙️ Admin Dashboard: http://localhost:8090/\_/
+- ✨ Frontend: http://localhost:4321
+- 👔 Admin Dashboard: http://localhost:8090/\_/
 
 ![Screenshot of default webapp](./bit-web.webp)
 
@@ -59,28 +60,28 @@ Bit sets you up with a modern, battle-tested stack:
 | Command          | What it Does    |
 | ---------------- | --------------- |
 | `bit deploy`     | Ship everything |
-| `bit deploy web` | Launch frontend |
-| `bit deploy pb`  | Launch backend  |
+| `bit deploy web` | Ship frontend   |
+| `bit deploy pb`  | Ship backend    |
 
-If your app diesnt exist in fly.io, it will launch and rhen deploy. 
+If your app doesn't exist in fly.io, it will launch first, then deploy.
 
-## 🏗️ Project Blueprint
+## 📐 Project Blueprint
 
 ```
 my-project/
 ├── apps/
 │   ├── web/          # Astro frontend
 │   │   ├── src/
-│   │   └── fly.toml  # Frontend deployment config
+│   │   └── fly.toml  # Frontend deploy config
 │   └── pb/           # PocketBase backend
 │       ├── pb_data/
 │       ├── pb_migrations/
-│       └── fly.toml   # Backend deployment config
-├── docker-compose.yml # Development magic
+│       └── fly.toml   # Backend deploy config
+├── docker-compose.yml # Development environment
 └── README.md
 ```
 
-## ⚡ Power User Features
+## 🪄 Power User Features
 
 ### Auto-Magic Admin Setup
 
@@ -97,7 +98,7 @@ Create `~/.bit.conf` to use one email/password for PB's superuser (and fastrack 
 }
 ```
 
-### Deploy Like a Pro
+### 🚢 Deploy Like a Pro
 
 We've partnered with [fly.io](https://fly.io) for smooth deployments:
 
@@ -123,7 +124,11 @@ We've partnered with [fly.io](https://fly.io) for smooth deployments:
    bit deploy web # Deploy Astro (Frontend / api) only
    ```
 
-## 🛠️ For the Builders
+### Deploying PocketBase to fly.io in real time
+
+![Deploying to fly.io, real time](./bit-deploy-pb.gif)
+
+## 🧑‍💻 For the Builders
 
 Want to make Bit even better? Here's how:
 
@@ -139,18 +144,18 @@ bit new test-project # Test your changes
 
 Make sure you have:
 
-- 🐳 [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- 🐋 [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - ✈️ [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/)
-- 🥟 [Bun](https://bun.sh/) (recommended) or npm
+- 🍞 [Bun](https://bun.sh/) (recommended) or npm
 
 ## 🆘 Need Help?
 
 Common hiccups and quick fixes:
 
-- 🐳 **Docker not running?** Fire up Docker Desktop
+- 🐋 **Docker not running?** Fire up Docker Desktop
 - 🔌 **Port conflicts?** Check if 4321 or 8090 are free
-- 🔑 **Permission issues?** Double-check Docker permissions
-- 🧹 **Start fresh?** Run `bun run clean`
+- 🔐 **Permission issues?** Double-check Docker permissions
+- 🫧 **Start fresh?** Run `bun run clean`
 
 ## 🤝 Join the Community
 
