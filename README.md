@@ -8,11 +8,11 @@
 
 Bit sets you up with a modern, battle-tested stack:
 
-- 🌿 **Monorepo** - Simple, organized and scalable from day one (apps/pb and apps/web)
-- 🐋 **Docker-Powered** - Development environment that "just works"
-- 📦 **PocketBase Backend** - Full-featured backend with admin UI
-- ✨ **Astro Frontend** - Blazing-fast web performance for pages and api endpoints (SSR by default on bit)
-- 🍞 **Bun** - Incredibly fast JavaScript runtime and toolkit for modern web development (powers bit's development experience)
+- 🌿 **[Monorepo](https://monorepo.tools/)** - Simple, organized and scalable from day one (`apps/pb` and `apps/web`)
+- 🐋 **[Docker](https://www.docker.com/)** - Development environment that "just works"
+- 📦 **[PocketBase Backend](https://pocketbase.io/)** - Full-featured backend with admin UI
+- ✨ **[Astro Frontend](https://astro.build/)** - Blazing-fast web performance for pages and api endpoints (SSR by default on `bit`)
+- 🍞 **[Bun](https://bun.sh/)** - Incredibly fast JavaScript runtime and toolkit for modern web development (powers bit's DX)
 
 ## 🚀 Get Started in 30 Seconds
 
