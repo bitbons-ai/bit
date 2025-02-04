@@ -8,10 +8,10 @@
 
 Bit sets you up with a modern, battle-tested stack:
 
-- 🏗️ **Turbocharged Monorepo** - Organized and scalable from day one
+- 🏗️ **Monorepo** - Simple, organized and scalable from day one (apps/pb and apps/web)
 - 🐳 **Docker-Powered** - Development environment that "just works"
 - 🚀 **PocketBase Backend** - Full-featured backend with admin UI
-- ⭐ **Astro Frontend** - Blazing-fast web performance
+- ⭐ **Astro Frontend** - Blazing-fast web performance for pages and api endpoints (SSR by default on bit)
 
 ## 🚀 Get Started in 30 Seconds
 
@@ -33,7 +33,7 @@ Bit sets you up with a modern, battle-tested stack:
    ```
    or
    ```bash
-   bit daemon # Runs in background
+   bit daemon # Runs in background, use bit stop later 
    ```
 
 **That's it!** Visit your creation at:
@@ -59,6 +59,8 @@ Bit sets you up with a modern, battle-tested stack:
 | `bit deploy`     | Ship everything |
 | `bit deploy web` | Launch frontend |
 | `bit deploy pb`  | Launch backend  |
+
+If your app diesnt exist in fly.io, it will launch and rhen deploy. 
 
 ## 🏗️ Project Blueprint
 
