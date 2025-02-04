@@ -2,90 +2,77 @@
 
 A modern project scaffolding tool that creates a full-stack development environment with:
 
-- Monorepo structure
-- Docker Compose setup
-- PocketBase integration
-- Astro app with a clean folder structure
+- 🏗️ Monorepo structure
+- 🐳 Docker Compose setup
+- 🚀 PocketBase backend
+- ⭐ Astro frontend
 
 ![Creating a project](https://github.com/bitbonsai/bit/blob/main/bit-new.gif?raw=true)
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install -g @mauricio.wolff/bit
 ```
 
-## Usage
+## 🚀 Quick Start
 
-### Create a new project
-```bash
-bit new my-project
-```
+1. Create a new project:
+   ```bash
+   bit new my-project && cd my-project
+   ```
 
-### Start development environment
-```bash
-bit start
-```
+2. Choose your development mode:
+   ```bash
+   bit start    # Interactive mode (shows logs in terminal)
+   # or
+   bit daemon   # Daemon mode (runs in background)
+   ```
 
-### Stop Development Environment
-```bash
-bit stop
-```
-Stops all running Docker services for your project.
+Your project will be available at:
+- Frontend: http://localhost:4321
+- PocketBase Admin: http://localhost:8090/_/
 
-### Deploy Your Project
-```bash
-# Deploy entire project (web and PocketBase)
-bit deploy
+## 🛠️ Commands
 
-# Deploy only web app
-bit deploy:web
+### Development
 
-# Deploy only PocketBase
-bit deploy:pb
-```
-Deploys your project to Fly.io. Requires:
-- Fly.io CLI installed (`flyctl`)
-- `fly.toml` configurations in `apps/web` and/or `apps/pb`
+| Command | Description |
+|---------|-------------|
+| `bit new <project-name>` | Create a new project |
+| `bit start` | Start development environment (interactive) |
+| `bit daemon` | Start development environment (background mode) |
+| `bit stop` | Stop development environment |
 
-- `bit deploy`: Deploys both web and PocketBase if configs exist
-- `bit deploy:web`: Deploys only the web application
-- `bit deploy:pb`: Deploys only PocketBase
+### Deployment
 
-## Features
+| Command | Description |
+|---------|-------------|
+| `bit deploy` | Deploy both frontend and backend (auto-launches if needed) |
+| `bit deploy web` | Deploy only frontend |
+| `bit deploy pb` | Deploy only backend |
 
-- 🏗️ **Monorepo Structure**: Organized project layout for multiple packages
-- 🐳 **Docker Compose**: Pre-configured development environment
-- 🚀 **PocketBase**: Integrated backend with authentication and database
-- ⭐ **Astro**: Modern frontend with optimal performance
-- 💅 **Clean UI**: Beautiful command-line interface with progress indicators
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 my-project/
-├── packages/
-│   ├── frontend/     # Astro application
-│   └── shared/       # Shared utilities
-├── pocketbase/
-│   ├── pb_data/
-│   ├── pb_migrations/
-│   └── pb_hooks/
-├── docker-compose.yml
+├── apps/
+│   ├── web/          # Astro frontend
+│   │   ├── src/
+│   │   └── fly.toml  # Frontend deployment config
+│   └── pb/           # PocketBase backend
+│       ├── pb_data/
+│       ├── pb_migrations/
+│       └── fly.toml   # Backend deployment config
+├── docker-compose.yml # Development environment
 └── README.md
 ```
 
-## Prerequisites
+## ⚙️ Configuration
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/) (for deployment)
-- [Bun](https://bun.sh/) or npm
+### PocketBase Admin Setup
 
-## Configuration
-
-### PocketBase Admin Credentials
-
-You can set default PocketBase admin credentials in `~/.bit-conf.json`:
+You can set default PocketBase admin credentials in `~/.bit.conf`:
 
 ```json
 {
@@ -98,25 +85,86 @@ You can set default PocketBase admin credentials in `~/.bit-conf.json`:
 }
 ```
 
-If not set, you'll be prompted to enter credentials during project creation.
+If not set, you'll be prompted during project creation.
 
-## Troubleshooting
+### Deployment Configuration
 
-- Ensure Docker is running before starting your project
-- Check that ports 4321 (Astro) and 8090 (PocketBase) are available
-- For deployment issues, verify Fly.io CLI is installed and configured
+Bit uses [fly.io](https://fly.io) for deployment. The first time you deploy:
 
-## Development
+1. Install fly.io CLI:
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   ```
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Link the CLI: `npm link`
-4. Run `bit` to see available commands
+2. Login to fly.io:
+   ```bash
+   fly auth login
+   ```
 
-## Contributing
+3. Deploy your project:
+   ```bash
+   bit deploy
+   ```
+
+This will automatically:
+- Launch your apps on fly.io if they don't exist
+- Deploy both frontend and backend
+- Set up necessary configuration
+
+## 🔨 Development
+
+Want to contribute to bit? Here's how to set up the development environment:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/bitbonsai/bit.git
+   cd bit
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Link the CLI for local development:
+   ```bash
+   npm link
+   ```
+
+4. Create a test project:
+   ```bash
+   bit new test-project
+   ```
+
+Now you can make changes to the bit source code and test them in your test project.
+
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm test` | Run tests |
+| `npm link` | Link CLI for local development |
+| `npm unlink` | Remove CLI link |
+
+## 🔧 Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/) (for deployment)
+- [Bun](https://bun.sh/) (recommended) or npm
+
+## ❗ Troubleshooting
+
+Common issues and solutions:
+
+- **Docker not running**: Ensure Docker Desktop is running before starting your project
+- **Port conflicts**: Check that ports 4321 (Astro) and 8090 (PocketBase) are available
+- **Permission issues**: For Docker volume permission issues, ensure your user has appropriate Docker permissions
+- **Reset environment**: Use `bun run clean` to completely reset the development environment
+
+## 👥 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+## 📄 License
 
-MIT License
+MIT License - see [LICENSE](LICENSE) for details
