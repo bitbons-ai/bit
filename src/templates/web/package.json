@@ -3,8 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "bun run astro dev --host 0.0.0.0",
-    "start": "bun run astro dev",
+    "dev": "astro dev --host 0.0.0.0",
+    "start": "astro dev --host 0.0.0.0",
     "build": "bun run astro build",
     "preview": "bun run astro preview"
   },
