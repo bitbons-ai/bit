@@ -7,7 +7,7 @@ A modern project scaffolding tool that creates a full-stack development environm
 - 🚀 PocketBase backend
 - ⭐ Astro frontend
 
-![Creating a project](https://github.com/bitbonsai/bit/blob/main/bit-new.gif?raw=true)
+[![asciicast](https://asciinema.org/a/zEwYmYtq2uaBbeyG6FMzsWLoU.svg)](https://asciinema.org/a/zEwYmYtq2uaBbeyG6FMzsWLoU)
 
 ## 📦 Installation
 
