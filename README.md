@@ -7,7 +7,7 @@ A modern project scaffolding tool that creates a full-stack development environm
 - 🚀 PocketBase backend
 - ⭐ Astro frontend
 
-[![asciicast](https://asciinema.org/a/zEwYmYtq2uaBbeyG6FMzsWLoU.svg)](https://asciinema.org/a/zEwYmYtq2uaBbeyG6FMzsWLoU)
+![Creating a project with bit](https://github.com/bitbonsai/bit/blob/main/bit-new.gif?raw=true)
 
 ## 📦 Installation
 
@@ -18,6 +18,7 @@ npm install -g @mauricio.wolff/bit
 ## 🚀 Quick Start
 
 1. Create a new project:
+
    ```bash
    bit new my-project && cd my-project
    ```
@@ -30,27 +31,28 @@ npm install -g @mauricio.wolff/bit
    ```
 
 Your project will be available at:
+
 - Frontend: http://localhost:4321
-- PocketBase Admin: http://localhost:8090/_/
+- PocketBase Admin: http://localhost:8090/\_/
 
 ## 🛠️ Commands
 
 ### Development
 
-| Command | Description |
-|---------|-------------|
-| `bit new <project-name>` | Create a new project |
-| `bit start` | Start development environment (interactive) |
-| `bit daemon` | Start development environment (background mode) |
-| `bit stop` | Stop development environment |
+| Command                  | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `bit new <project-name>` | Create a new project                            |
+| `bit start`              | Start development environment (interactive)     |
+| `bit daemon`             | Start development environment (background mode) |
+| `bit stop`               | Stop development environment                    |
 
 ### Deployment
 
-| Command | Description |
-|---------|-------------|
-| `bit deploy` | Deploy both frontend and backend (auto-launches if needed) |
-| `bit deploy web` | Deploy only frontend |
-| `bit deploy pb` | Deploy only backend |
+| Command          | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `bit deploy`     | Deploy both frontend and backend (auto-launches if needed) |
+| `bit deploy web` | Deploy only frontend                                       |
+| `bit deploy pb`  | Deploy only backend                                        |
 
 ## 📁 Project Structure
 
@@ -92,11 +94,13 @@ If not set, you'll be prompted during project creation.
 Bit uses [fly.io](https://fly.io) for deployment. The first time you deploy:
 
 1. Install fly.io CLI:
+
    ```bash
    curl -L https://fly.io/install.sh | sh
    ```
 
 2. Login to fly.io:
+
    ```bash
    fly auth login
    ```
@@ -107,6 +111,7 @@ Bit uses [fly.io](https://fly.io) for deployment. The first time you deploy:
    ```
 
 This will automatically:
+
 - Launch your apps on fly.io if they don't exist
 - Deploy both frontend and backend
 - Set up necessary configuration
@@ -116,17 +121,20 @@ This will automatically:
 Want to contribute to bit? Here's how to set up the development environment:
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/bitbonsai/bit.git
    cd bit
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Link the CLI for local development:
+
    ```bash
    npm link
    ```
@@ -140,11 +148,11 @@ Now you can make changes to the bit source code and test them in your test proje
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm test` | Run tests |
-| `npm link` | Link CLI for local development |
-| `npm unlink` | Remove CLI link |
+| Script       | Description                    |
+| ------------ | ------------------------------ |
+| `npm test`   | Run tests                      |
+| `npm link`   | Link CLI for local development |
+| `npm unlink` | Remove CLI link                |
 
 ## 🔧 Prerequisites
 
