@@ -3,10 +3,10 @@ FROM oven/bun:1 AS builder
 WORKDIR /app
 
 # Cache dependencies
-COPY package.json package-lock.json* bun.lockb* ./
-RUN bun install --frozen-lockfile || npm ci
+COPY package.json ./
+RUN bun install --frozen-lockfile
 
-# Copy source files, respecting .dockerignore
+# Copy source files
 COPY . .
 
 # Build the app
@@ -15,26 +15,22 @@ RUN bun run build
 
 FROM oven/bun:1-slim AS runtime
 
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=4321
-
-# Use more universal user creation method
-RUN addgroup --system appgroup && \
-    adduser --system --no-create-home --ingroup appgroup appuser
-
 WORKDIR /app
 
 # Copy only what's needed for the Node SSR server
-COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
-COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:appgroup /app/package.json .
+COPY --from=builder --chown=bun:bun /app/dist ./dist
+COPY --from=builder --chown=bun:bun /app/node_modules ./node_modules
+COPY --from=builder --chown=bun:bun /app/package.json .
 
-USER appuser
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=4321
+
+USER bun
 
 EXPOSE 4321
 
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:4321/ || exit 1
 
-CMD bun ./dist/server/entry.mjs
+CMD ["bun", "./dist/server/entry.mjs"]

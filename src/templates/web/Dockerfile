@@ -1,30 +1,25 @@
 FROM oven/bun:1
 
-# Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Set working directory
 WORKDIR /app
 
-# Ensure the app directory is owned by the non-root user
-RUN chown -R appuser:appgroup /app
+# Only copy package files first to leverage cache
+COPY package.json ./
 
-# Cache dependencies
-COPY --chown=appuser:appgroup package.json package-lock.json* bun.lockb* ./
-RUN bun install
+# Install and setup as root
+RUN bun install && \
+    mkdir -p /app/node_modules/.astro && \
+    chown -R bun:bun /app && \
+    chmod -R 755 /app/node_modules/.astro
 
-# Copy source files, respecting .dockerignore
-COPY --chown=appuser:appgroup . .
+# Switch to bun user
+USER bun
 
-# Set environment variables
-ENV HOST=0.0.0.0
-ENV PORT=4321
-
-# Expose the port
 EXPOSE 4321
 
-# Switch to non-root user
-USER appuser
-
-# In development, run dev server directly
-CMD echo "Starting development server..." && bun run dev
+# Use an entrypoint script to ensure directory exists
+CMD ["sh", "-c", "\
+    if [ ! -d /app/node_modules/.astro ]; then \
+    mkdir -p /app/node_modules/.astro; \
+    fi && \
+    bun run dev \
+    "]

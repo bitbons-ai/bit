@@ -23,7 +23,7 @@ services:
       - "4321:4321"
     volumes:
       - ./apps/web:/app
-      - /app/node_modules
+      - web_node_modules:/app/node_modules
     environment:
       - POCKETBASE_URL=http://pocketbase:8090
       - NODE_ENV=development
@@ -52,3 +52,5 @@ services:
 volumes:
   {{name}}_pb_data:
     name: {{name}}_pb_data
+  web_node_modules:
+    name: web_node_modules
