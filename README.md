@@ -63,7 +63,7 @@ Bit sets you up with a modern, battle-tested stack:
 | `bit deploy web` | Ship frontend   |
 | `bit deploy pb`  | Ship backend    |
 
-If your app doesn't exist in fly.io, it will launch first, then deploy.
+If your app doesn't exist in [fly.io](https://fly.io), it will `launch` first, then `deploy`.
 
 ## 📐 Project Blueprint
 
@@ -85,13 +85,13 @@ my-project/
 
 ### Auto-Magic Admin Setup
 
-Create `~/.bit.conf` to use one email/password for PB's superuser (and fastrack creation):
+Create `~/.bit.conf` to use one email/password for PB's superuser (and to fastrack creation):
 
 ```json
 {
   "pocketbase": {
     "admin": {
-      "email": "your@email.com",
+      "email": "pb-admin@your-email.com",
       "password": "your-secure-password"
     }
   }
