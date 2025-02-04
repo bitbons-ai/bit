@@ -1,60 +1,66 @@
-# 🌱 Bit - Better Install This
+# 🌱 Bit - Your Full-Stack Project Launchpad
 
-A modern project scaffolding tool that creates a full-stack development environment with:
+**Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
 
-- 🏗️ Monorepo structure
-- 🐳 Docker Compose setup
-- 🚀 PocketBase backend
-- ⭐ Astro frontend
+![Creating a project with bit](https://github.com/bitbonsai/bit/blob/main/bit-demo.gif?raw=true)
 
-![Creating a project with bit](https://github.com/bitbonsai/bit/blob/main/bit-new.gif?raw=true)
+## ✨ What's in the Box?
 
-## 📦 Installation
+Bit sets you up with a modern, battle-tested stack:
 
-```bash
-npm install -g @mauricio.wolff/bit
-```
+- 🏗️ **Turbocharged Monorepo** - Organized and scalable from day one
+- 🐳 **Docker-Powered** - Development environment that "just works"
+- 🚀 **PocketBase Backend** - Full-featured backend with admin UI
+- ⭐ **Astro Frontend** - Blazing-fast web performance
 
-## 🚀 Quick Start
+## 🚀 Get Started in 30 Seconds
 
-1. Create a new project:
+1. Install Bit:
 
    ```bash
-   bit new my-project && cd my-project
+   npm install -g @mauricio.wolff/bit
    ```
 
-2. Choose your development mode:
+2. Create your masterpiece:
+
    ```bash
-   bit start    # Interactive mode (shows logs in terminal)
-   # or
-   bit daemon   # Daemon mode (runs in background)
+   bit new my-awesome-project && cd my-awesome-project
    ```
 
-Your project will be available at:
+3. Choose your style:
+   ```bash
+   bit start # Starts pb and astro and watches log files
+   ```
+   or
+   ```bash
+   bit daemon # Runs in background
+   ```
 
-- Frontend: http://localhost:4321
-- PocketBase Admin: http://localhost:8090/\_/
+**That's it!** Visit your creation at:
 
-## 🛠️ Commands
+- 🎨 Frontend: http://localhost:4321
+- ⚙️ Admin Dashboard: http://localhost:8090/\_/
 
-### Development
+## 🎮 Command Center
 
-| Command                  | Description                                     |
-| ------------------------ | ----------------------------------------------- |
-| `bit new <project-name>` | Create a new project                            |
-| `bit start`              | Start development environment (interactive)     |
-| `bit daemon`             | Start development environment (background mode) |
-| `bit stop`               | Stop development environment                    |
+### During Development
 
-### Deployment
+| Command                  | What it Does                       |
+| ------------------------ | ---------------------------------- |
+| `bit new <project-name>` | Create a new project               |
+| `bit start`              | Launch with live logs              |
+| `bit daemon`             | Run silently in background         |
+| `bit stop`               | Shut it down and delete containers |
 
-| Command          | Description                                                |
-| ---------------- | ---------------------------------------------------------- |
-| `bit deploy`     | Deploy both frontend and backend (auto-launches if needed) |
-| `bit deploy web` | Deploy only frontend                                       |
-| `bit deploy pb`  | Deploy only backend                                        |
+### Ready for the World?
 
-## 📁 Project Structure
+| Command          | What it Does    |
+| ---------------- | --------------- |
+| `bit deploy`     | Ship everything |
+| `bit deploy web` | Launch frontend |
+| `bit deploy pb`  | Launch backend  |
+
+## 🏗️ Project Blueprint
 
 ```
 my-project/
@@ -66,15 +72,15 @@ my-project/
 │       ├── pb_data/
 │       ├── pb_migrations/
 │       └── fly.toml   # Backend deployment config
-├── docker-compose.yml # Development environment
+├── docker-compose.yml # Development magic
 └── README.md
 ```
 
-## ⚙️ Configuration
+## ⚡ Power User Features
 
-### PocketBase Admin Setup
+### Auto-Magic Admin Setup
 
-You can set default PocketBase admin credentials in `~/.bit.conf`:
+Create `~/.bit.conf` to use one email/password for PB's superuser (and fastrack creation):
 
 ```json
 {
@@ -87,94 +93,65 @@ You can set default PocketBase admin credentials in `~/.bit.conf`:
 }
 ```
 
-![Creating a project with bit, getting pb admin from ~./bit.conf](https://github.com/bitbonsai/bit/blob/main/bit-auto-admin.gif?raw=true)
+### Deploy Like a Pro
 
-If not set, you'll be prompted during project creation.
+We've partnered with [fly.io](https://fly.io) for smooth deployments:
 
-### Deployment Configuration
-
-Bit uses [fly.io](https://fly.io) for deployment. The first time you deploy:
-
-1. Install fly.io CLI:
+1. Get the tools:
 
    ```bash
    curl -L https://fly.io/install.sh | sh
    ```
 
-2. Login to fly.io:
+2. Log in:
 
    ```bash
    fly auth login
    ```
 
-3. Deploy your project:
+3. Ship it:
    ```bash
-   bit deploy
+   bit deploy # From your project's root directory
+   ```
+   or
+   ```bash
+   bit deploy pb # Deploy PocketBase (db / backend) only
+   bit deploy web # Deploy Astro (Frontend / api) only
    ```
 
-This will automatically:
+## 🛠️ For the Builders
 
-- Launch your apps on fly.io if they don't exist
-- Deploy both frontend and backend
-- Set up necessary configuration
+Want to make Bit even better? Here's how:
 
-## 🔨 Development
+```bash
+git clone https://github.com/bitbonsai/bit.git
+cd bit
+npm install
+npm link
+bit new test-project # Test your changes
+```
 
-Want to contribute to bit? Here's how to set up the development environment:
+## 📋 Before You Start
 
-1. Clone the repository:
+Make sure you have:
 
-   ```bash
-   git clone https://github.com/bitbonsai/bit.git
-   cd bit
-   ```
+- 🐳 [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- ✈️ [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/)
+- 🥟 [Bun](https://bun.sh/) (recommended) or npm
 
-2. Install dependencies:
+## 🆘 Need Help?
 
-   ```bash
-   npm install
-   ```
+Common hiccups and quick fixes:
 
-3. Link the CLI for local development:
+- 🐳 **Docker not running?** Fire up Docker Desktop
+- 🔌 **Port conflicts?** Check if 4321 or 8090 are free
+- 🔑 **Permission issues?** Double-check Docker permissions
+- 🧹 **Start fresh?** Run `bun run clean`
 
-   ```bash
-   npm link
-   ```
+## 🤝 Join the Community
 
-4. Create a test project:
-   ```bash
-   bit new test-project
-   ```
+Got ideas? Found a bug? We love pull requests!
 
-Now you can make changes to the bit source code and test them in your test project.
+## ⚖️ License
 
-### Available Scripts
-
-| Script       | Description                    |
-| ------------ | ------------------------------ |
-| `npm test`   | Run tests                      |
-| `npm link`   | Link CLI for local development |
-| `npm unlink` | Remove CLI link                |
-
-## 🔧 Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- [Fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/) (for deployment)
-- [Bun](https://bun.sh/) (recommended) or npm
-
-## ❗ Troubleshooting
-
-Common issues and solutions:
-
-- **Docker not running**: Ensure Docker Desktop is running before starting your project
-- **Port conflicts**: Check that ports 4321 (Astro) and 8090 (PocketBase) are available
-- **Permission issues**: For Docker volume permission issues, ensure your user has appropriate Docker permissions
-- **Reset environment**: Use `bun run clean` to completely reset the development environment
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details
+MIT License - go wild! See [LICENSE](LICENSE) for the fine print.
