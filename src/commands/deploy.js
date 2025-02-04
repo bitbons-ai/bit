@@ -16,7 +16,7 @@ async function checkFlyInstalled() {
 async function checkFlyAppExists(appName) {
   try {
     const { execa } = await import('execa');
-    const { stdout } = await execa('flyctl', ['apps', 'list'], { 
+    const { stdout } = await execa('flyctl', ['apps', 'list'], {
       stdio: 'pipe',
       env: { ...process.env, FORCE_COLOR: 'true' }
     });
@@ -65,11 +65,11 @@ async function deployProject(target) {
           spinner.fail(kleur.red('No fly.toml found in apps/web'));
           process.exit(1);
         }
-        
+
         console.log(kleur.cyan('\n🚀 Deploying web app on Fly.io'));
         try {
           const webAppName = `${projectName}-web`;
-          
+
           // Stop spinner to prevent blinking during output
           spinner.stop();
 
@@ -77,14 +77,14 @@ async function deployProject(target) {
           const webAppExists = await checkFlyAppExists(webAppName);
           if (!webAppExists) {
             console.log(kleur.yellow('Web app not found. Launching...'));
-            await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], { 
+            await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], {
               cwd: path.join(process.cwd(), 'apps', 'web'),
               stdio: 'inherit'
             });
           }
 
           // Deploy with streaming output
-          await execa('flyctl', ['deploy'], { 
+          await execa('flyctl', ['deploy', '--ha=false'], {
             cwd: path.join(process.cwd(), 'apps', 'web'),
             stdio: 'inherit',
             env: { ...process.env, FORCE_COLOR: 'true' }
@@ -103,11 +103,11 @@ async function deployProject(target) {
           spinner.fail(kleur.red('No fly.toml found in apps/pb'));
           process.exit(1);
         }
-        
+
         console.log(kleur.cyan('\n🚀 Deploying PocketBase on Fly.io'));
         try {
           const pbAppName = `${projectName}-pb`;
-          
+
           // Stop spinner to prevent blinking during output
           spinner.stop();
 
@@ -115,14 +115,14 @@ async function deployProject(target) {
           const pbAppExists = await checkFlyAppExists(pbAppName);
           if (!pbAppExists) {
             console.log(kleur.yellow('PocketBase app not found. Launching...'));
-            await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], { 
+            await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], {
               cwd: path.join(process.cwd(), 'apps', 'pb'),
               stdio: 'inherit'
             });
           }
 
           // Deploy with streaming output
-          await execa('flyctl', ['deploy'], { 
+          await execa('flyctl', ['deploy'], {
             cwd: path.join(process.cwd(), 'apps', 'pb'),
             stdio: 'inherit',
             env: { ...process.env, FORCE_COLOR: 'true' }
@@ -149,19 +149,19 @@ async function deployProject(target) {
           console.log(kleur.cyan('\n🚀 Deploying PocketBase on Fly.io'));
           try {
             const pbAppName = `${projectName}-pb`;
-            
+
             // Launch app if it doesn't exist
             const pbAppExists = await checkFlyAppExists(pbAppName);
             if (!pbAppExists) {
               console.log(kleur.yellow('PocketBase app not found. Launching...'));
-              await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], { 
+              await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], {
                 cwd: path.join(process.cwd(), 'apps', 'pb'),
                 stdio: 'inherit'
               });
             }
 
             // Deploy with streaming output
-            await execa('flyctl', ['deploy'], { 
+            await execa('flyctl', ['deploy'], {
               cwd: path.join(process.cwd(), 'apps', 'pb'),
               stdio: 'inherit',
               env: { ...process.env, FORCE_COLOR: 'true' }
@@ -179,19 +179,19 @@ async function deployProject(target) {
           console.log(kleur.cyan('\n🚀 Deploying web app on Fly.io'));
           try {
             const webAppName = `${projectName}-web`;
-            
+
             // Launch app if it doesn't exist
             const webAppExists = await checkFlyAppExists(webAppName);
             if (!webAppExists) {
               console.log(kleur.yellow('Web app not found. Launching...'));
-              await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], { 
+              await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], {
                 cwd: path.join(process.cwd(), 'apps', 'web'),
                 stdio: 'inherit'
               });
             }
 
             // Deploy with streaming output
-            await execa('flyctl', ['deploy'], { 
+            await execa('flyctl', ['deploy'], {
               cwd: path.join(process.cwd(), 'apps', 'web'),
               stdio: 'inherit',
               env: { ...process.env, FORCE_COLOR: 'true' }
