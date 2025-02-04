@@ -87,6 +87,8 @@ You can set default PocketBase admin credentials in `~/.bit.conf`:
 }
 ```
 
+![Creating a project with bit, getting pb admin from ~./bit.conf](https://github.com/bitbonsai/bit/blob/main/bit-auto-admin.gif?raw=true)
+
 If not set, you'll be prompted during project creation.
 
 ### Deployment Configuration
