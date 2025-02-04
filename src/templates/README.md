@@ -1,110 +1,130 @@
 # {{name}}
 
-## 🏗 Architecture
+> **Note**: While we recommend using [bun](https://bun.sh) as the package manager for optimal performance, you can also use npm or pnpm if you prefer. Simply replace `bun` with your preferred package manager in the commands.
 
-This is a monorepo project consisting of:
+## 🚀 Quick Start
+
+1. Start the development environment:
+   ```bash
+   bun run dev
+   ```
+   This will start both the Astro frontend and PocketBase backend in development mode.
+
+2. Access your applications:
+   - Frontend: [http://localhost:4321](http://localhost:4321)
+   - PocketBase Admin: [http://localhost:8090/_/](http://localhost:8090/_/)
+
+## 🏗 Project Structure
 
 ```text
 /
 ├── apps/
-│   ├── web/                # Astro application
+│   ├── web/                # Astro frontend application
 │   │   ├── src/
-│   │   │   ├── components/ # UI components
-│   │   │   ├── css/        # Global and component styles
+│   │   │   ├── components/ # Reusable UI components
 │   │   │   ├── layouts/    # Page layouts and templates
-│   │   │   ├── lib/        # Shared utilities and helpers
-│   │   │   └── pages/      # Application routes
-│   │   ├── public/         # Static assets
-│   │   ├── astro.config.mjs
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   └── pb/                 # PocketBase instance
-│       ├── pb_data/        # Database files
-│       └── Dockerfile
-├── package.json
-├── .env.development        # Environment variables for development
-└── docker-compose.yml
+│   │   │   ├── pages/      # Application routes
+│   │   │   ├── css/        # Styles and themes
+│   │   │   └── lib/        # Shared utilities and helpers
+│   │   └── public/         # Static assets
+│   └── pb/                 # PocketBase backend
+│       ├── pb_data/        # Database files (gitignored)
+│       └── pb_migrations/  # Database migrations
+├── docker-compose.yml      # Development environment setup
+└── .env                    # Environment variables
 ```
 
 ## 🛠 Tech Stack
 
-- [Astro](https://astro.build) - Web framework
-- [PocketBase](https://pocketbase.io) - Database
-- [Docker](https://www.docker.com) - Containerization
+- **Frontend**: [Astro](https://astro.build) - The web framework for content-driven websites
+- **Backend**: [PocketBase](https://pocketbase.io) - Open Source backend in 1 file
+- **Development**: [Docker](https://www.docker.com) - Container platform
 
-## 🔧 Configuration
+## 🧞 Available Commands
 
-### PocketBase Admin Credentials
+From the project root:
 
-You can set default PocketBase admin credentials in `~/.bit-conf.json`:
+| Command           | Action                                           |
+|:-----------------|:------------------------------------------------|
+| `bun run dev`    | Start development environment                    |
+| `bun run daemon` | Start in detached mode                          |
+| `bun run build`  | Build Docker images                             |
+| `bun run start`  | Start existing containers                       |
+| `bun run stop`   | Stop containers                                 |
+| `bun run down`   | Stop and remove containers                      |
+| `bun run clean`  | Stop containers and remove volumes              |
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+The project uses a single `.env` file in the root directory:
+
+```env
+SUPERUSER_EMAIL=admin@example.com      # PocketBase admin email
+SUPERUSER_PASSWORD=your-password       # PocketBase admin password
+```
+
+### PocketBase Admin Setup
+
+You can set default PocketBase admin credentials in `~/.bit.conf`:
 
 ```json
 {
   "pocketbase": {
     "admin": {
-      "email": "your@email.com",
+      "email": "admin@example.com",
       "password": "your-secure-password"
     }
   }
 }
 ```
 
-If this file exists, the CLI will use these credentials when creating new projects. Otherwise, it will prompt for credentials during project creation.
+If this file exists, these credentials will be used when creating new projects. Otherwise, you'll be prompted during project creation.
 
-## 🧞 Development
+## 🐳 Docker Development
 
-The project uses Docker for local development. From the root directory:
+The development environment uses Docker Compose with the following features:
 
-```bash
-bun run dev
-```
+- Hot reloading for the Astro application
+- Automatic restart for PocketBase
+- Volume mounting for persistent data
+- Port mapping:
+  - `4321`: Astro frontend
+  - `8090`: PocketBase backend
 
-This command will:
-1. Start the PocketBase container
-2. Start the Astro development server with hot reloading
-3. Set up communication between the services
+## 📦 Production Deployment
 
-## 🔑 Environment Variables
+The project is configured for deployment to [fly.io](https://fly.io). Each application includes its own `fly.toml` configuration file.
 
-The project uses two `.env.development` files:
+### Deploy Commands
 
-### Root .env.development (for Docker Compose)
-```env
-SUPERUSER_EMAIL=your@email.com      # PocketBase admin email
-SUPERUSER_PASSWORD=yourpassword     # PocketBase admin password
-```
+| Command                    | Action                                           |
+|:-------------------------|:------------------------------------------------|
+| `bun run deploy`         | Deploy both frontend and backend                |
+| `bun run deploy:web`     | Deploy only the frontend                        |
+| `bun run deploy:pb`      | Deploy only PocketBase                          |
 
-### apps/web/.env.development (for Astro)
-```env
-POCKETBASE_URL=http://localhost:8090  # PocketBase instance URL
-```
+### First-time Deployment
 
-These files are created automatically during project setup. Make sure to keep your credentials safe!
+1. Install the [fly.io CLI](https://fly.io/docs/hands-on/install-flyctl/)
+2. Login to fly.io:
+   ```bash
+   fly auth login
+   ```
+3. Create apps (if not already created):
+   ```bash
+   cd apps/web && fly launch
+   cd ../pb && fly launch
+   ```
+4. Deploy both apps:
+   ```bash
+   bun run deploy
+   ```
 
-## 🚀 Deployment
+### Configuration Files
 
-The project includes separate Dockerfiles for development and production:
+- `apps/web/fly.toml`: Astro frontend configuration
+- `apps/pb/fly.toml`: PocketBase backend configuration
 
-### Web Application
-- Development: `apps/web/Dockerfile` 
-  - Used by `docker-compose.yml` for local development
-  - Includes hot reloading and development server
-  - Sets `NODE_ENV=development`
-
-- Production: `apps/web/Dockerfile.prod`
-  - Multi-stage build for smaller image size
-  - Pre-builds the Astro application
-  - Sets `NODE_ENV=production`
-  - Optimized for performance
-
-To build for production:
-```bash
-docker build -f apps/web/Dockerfile.prod -t your-app-name/web:prod ./apps/web
-```
-
-### PocketBase
-- Uses the same Dockerfile for both environments
-- Data persistence through Docker volumes
-- Automatically creates admin user on first run
-
-Each app directory contains its own `fly.toml` for deployment configuration.
+Make sure to update the app names in both `fly.toml` files to match your fly.io app names.

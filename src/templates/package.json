@@ -3,13 +3,15 @@
   "private": true,
   "scripts": {
     "dev": "docker compose up",
+    "daemon": "docker compose up -d",
     "build": "docker compose build",
-    "down": "docker compose down",
-    "stop": "docker compose stop",
     "start": "docker compose start",
-    "deploy": "npm run deploy:web && npm run deploy:pb",
+    "stop": "docker compose stop",
+    "down": "docker compose down",
+    "clean": "docker compose down -v",
+    "deploy": "bun run deploy:web && bun run deploy:pb",
     "deploy:web": "cd apps/web && fly deploy",
-    "deploy:web:fresh": "cd apps/web && rm -rf node_modules && rm -rf package-lock.json && npm install && npm run build && fly deploy",
+    "deploy:web:fresh": "cd apps/web && rm -rf node_modules && bun install && bun run build && fly deploy",
     "deploy:pb": "cd apps/pb && fly deploy"
   }
 }
