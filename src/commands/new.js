@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
 import net from 'net';
+import cp from 'child_process'
 import { fileURLToPath } from 'url';
 import { intro, outro, text, password, isCancel } from '@clack/prompts';
 import fetch from 'node-fetch';
@@ -220,8 +221,11 @@ async function getPocketBaseCredentials() {
     console.log(kleur.white('These credentials will be used to access the PocketBase Admin UI'));
     console.log(kleur.white('where you can manage your database, collections and files.\n'));
 
+    const defaultEmail = cp.execSync("git config user.email").toString().trim();
+
     const email = await text({
       message: 'Enter admin email:',
+      initialValue: defaultEmail,
       validate: (value) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(value) ? undefined : 'Please enter a valid email address';
