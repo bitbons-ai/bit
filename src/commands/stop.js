@@ -13,11 +13,14 @@ async function stopProject() {
     await fs.access(composePath);
 
     // Stop services
-    execSync('docker compose down', { 
+    execSync('docker compose stop', { 
       stdio: 'inherit'
     });
 
     spinner.succeed(kleur.green('Development environment stopped!'));
+    console.log(kleur.white('\nUse ') + kleur.blue('bit start') + kleur.white(' to start services again'));
+    console.log(kleur.white('Use ') + kleur.blue('bit down') + kleur.white(' to remove all containers and volumes\n'));
+
   } catch (error) {
     if (error.code === 'ENOENT') {
       spinner.fail(kleur.red('No docker-compose.yml found in current directory'));

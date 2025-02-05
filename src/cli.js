@@ -2,15 +2,16 @@
 
 import { Command } from 'commander';
 import kleur from 'kleur';
+
 import { showBanner } from './utils/banner.js';
 import { checkForUpdates, getCurrentVersion } from './utils/version.js';
 
-// Commands
 import { newCommand } from './commands/new.js';
 import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { deployCommand } from './commands/deploy.js';
-import { daemonCommand } from './commands/daemon.js';
+import { logsCommand } from './commands/logs.js';
+import { downCommand } from './commands/down.js';
 
 const program = new Command();
 
@@ -37,7 +38,8 @@ async function main() {
   startCommand(program);
   stopCommand(program);
   deployCommand(program);
-  daemonCommand(program);
+  logsCommand(program);
+  downCommand(program);
 
   // Parse arguments
   await program.parseAsync(process.argv);

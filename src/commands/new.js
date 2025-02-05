@@ -431,7 +431,7 @@ export function newCommand(program) {
         outro(kleur.green('\n✨ Project created successfully!'));
         console.log(kleur.cyan().bold('Next steps:'));
         console.log('  ', kleur.gray('$'), kleur.white(`cd ${name}`));
-        console.log('  ', kleur.gray('$'), kleur.white('bun run dev'), kleur.gray('# Start development environment'));
+        console.log('  ', kleur.gray('$'), kleur.white('bit start'), kleur.gray('# Start development environment (Ctrl+C to detach)'));
         console.log('  ', kleur.cyan().bold('\n📦 PocketBase admin UI will be available at:'));
         console.log(kleur.white('🔗  http://localhost:8090/_/'));
         
