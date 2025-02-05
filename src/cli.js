@@ -20,9 +20,17 @@ async function main() {
 
   const version = await getCurrentVersion();
   program
-    .name('bit')
-    .description('CLI to scaffold and manage modern web projects')
-    .version(version);
+    .name(kleur.bold().green('bit'))
+    .description(kleur.gray('CLI to scaffold and manage modern web projects'))
+    .version(version)
+    .configureHelp({
+      commandUsage: () => kleur.yellow('bit [options] [command]'),
+      subcommandDescription: (cmd) => kleur.gray(cmd.description()),
+      optionDescription: (opt) => kleur.gray(opt.description),
+      commandDescription: (cmd) => kleur.gray(cmd.description()),
+      subcommandTerm: (cmd) => kleur.cyan(cmd.name() + cmd.usage()),
+      optionTerm: (opt) => kleur.cyan(opt.flags),
+    });
 
   // Register commands
   newCommand(program);
