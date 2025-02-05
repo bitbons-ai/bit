@@ -232,8 +232,12 @@ async function getPocketBaseCredentials() {
       process.exit(1);
     }
 
-    const pass = await password({
+    const rand = () => Math.floor(Math.random() * 1e6).toString(24);
+    const randomPassword = `${rand()}-${rand()}`;
+
+    const pass = await text({
       message: 'Enter admin password:',
+      initialValue: randomPassword,
       validate: (value) => {
         if (value.length < 5) return 'Password must be at least 5 characters';
         return;
@@ -408,7 +412,7 @@ export function newCommand(program) {
         
         console.log(kleur.yellow('\n⚠️  Please save these credentials, you\'ll need them to access the admin UI'));
         console.log(kleur.white(`Email: ${pbCreds.email}`));
-        console.log(kleur.white(`Password: ${'*'.repeat(pbCreds.pass.length)}\n`));
+        console.log(kleur.white(`Password: ${pbCreds.pass}\n`));
         
         const projectPath = path.resolve(process.cwd(), name);
         
