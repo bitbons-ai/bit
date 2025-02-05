@@ -5,7 +5,7 @@
   "main": "src/cli.js",
   "type": "module",
   "bin": {
-    "bit": "./src/cli.js"
+    "bit": "src/cli.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
