@@ -1,5 +1,5 @@
 # 🌱 Bit - Your Full-Stack Project Launchpad
-![Version](https://img.shields.io/github/package-json/v/bitbonsai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@mauricio.wolff/bit) ![Issues](https://img.shields.io/github/issues/bitbonsai/bit)
+![Version](https://img.shields.io/github/package-json/v/bitbonsai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@mauricio.wolff/bit) ![Issues](https://img.shields.io/github/issues/bitbonsai/bit) ![Last Commit](https://img.shields.io/github/last-commit/bitbonsai/bit) 
 
 
 **Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
