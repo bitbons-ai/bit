@@ -1,6 +1,6 @@
 {
   "name": "@mauricio.wolff/bit",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "∴ bit - Your Stack Sidekick. A CLI tool for scaffolding modern web projects with monorepo structure, Docker Compose, PocketBase, and Astro.",
   "main": "src/cli.js",
   "type": "module",
