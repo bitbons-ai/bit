@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import ora from 'ora';
 import kleur from 'kleur';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import net from 'net';
 import { fileURLToPath } from 'url';
@@ -10,7 +11,70 @@ import fetch from 'node-fetch';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
+
+function resolveTemplatesDir() {
+  // Determine the base path for template resolution
+  const baseModulePath = path.dirname(fileURLToPath(import.meta.url));
+  
+  // Get the global node_modules path
+  const globalNodeModulesPath = path.join(process.env.HOME, '.nvm', 'versions', 'node', 
+    `v${process.version.slice(1)}`, 'lib', 'node_modules');
+  
+  // Check potential template locations in order of preference
+  const potentialPaths = [
+    // 1. Local project templates (current working directory)
+    path.join(process.cwd(), 'src', 'templates'),
+    
+    // 2. Relative to current script (local development)
+    path.join(baseModulePath, '..', 'templates'),
+    
+    // 3. Global installation paths
+    path.join(baseModulePath, 'templates'),
+    path.join(baseModulePath, '..', 'lib', 'templates'),
+    
+    // 4. Absolute global installation paths
+    path.join(baseModulePath, '..', '..', 'templates'),
+    
+    // 5. Fallback using Node.js module resolution
+    path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'src', 'templates'),
+    path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'templates')
+  ];
+
+  for (const templatePath of potentialPaths) {
+    try {
+      // Normalize the path to resolve any symlinks or relative components
+      const normalizedPath = path.resolve(templatePath);
+      
+      // Check if the templates directory exists and is readable
+      fsSync.accessSync(normalizedPath, fsSync.constants.R_OK);
+      
+      // Additional check to ensure it's a directory
+      const stats = fsSync.statSync(normalizedPath);
+      if (stats.isDirectory()) {
+        // Verify the directory contains expected template files
+        const templateFiles = fsSync.readdirSync(normalizedPath);
+        const requiredTemplates = ['README.md', 'package.json'];
+        const hasRequiredTemplates = requiredTemplates.every(file => 
+          templateFiles.includes(file)
+        );
+
+        if (hasRequiredTemplates) {
+          return normalizedPath;
+        }
+      }
+    } catch (error) {
+      // Silently continue to next path
+      continue;
+    }
+  }
+
+  // If no valid template directory is found, throw an error with more context
+  throw new Error(`Could not locate project templates. 
+    Global Node Modules Path: ${globalNodeModulesPath}
+    Please check your bit CLI installation.`);
+}
+
+const TEMPLATES_DIR = resolveTemplatesDir();
 
 async function copyDir(src, dest, replacements = {}) {
   await fs.mkdir(dest, { recursive: true });
