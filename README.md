@@ -1,4 +1,4 @@
-# 🌱 Bit - Your Full-Stack Project Launchpad
+# ∴ Bit - Your Stack Bootstrapper
 ![Version](https://img.shields.io/github/package-json/v/bitbonsai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@mauricio.wolff/bit) ![Issues](https://img.shields.io/github/issues/bitbonsai/bit) ![Last Commit](https://img.shields.io/github/last-commit/bitbonsai/bit) 
 
 

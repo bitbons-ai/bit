@@ -398,7 +398,7 @@ export function newCommand(program) {
     .option('--astro <version>', 'Astro version', async () => await getLatestAstroVersion())
     .action(async (name, options) => {
       try {
-        intro(kleur.cyan('🌱 Creating your new project...'));
+        intro(kleur.cyan('∴ Creating your new project...'));
         
         // Verify Docker environment before proceeding
         await verifyDockerEnvironment();
