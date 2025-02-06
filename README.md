@@ -90,7 +90,7 @@ Create `~/.bit.conf` to use one email/password for PB's superuser (and to fastra
 {
   "pocketbase": {
     "admin": {
-      "email": "pb-admin@your-email.com",
+      "email": "pb-admin@your-domain.com",
       "password": "your-secure-password"
     }
   }
