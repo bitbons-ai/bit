@@ -293,6 +293,7 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
       "npm",
       [
         "create",
+        "--yes",
         "astro@latest",
         ".",
         "--",
