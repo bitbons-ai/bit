@@ -12,6 +12,7 @@ import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let pbCredsFromConfig = false;
 
 function resolveTemplatesDir() {
   // Determine the base path for template resolution
@@ -214,7 +215,8 @@ async function getPocketBaseCredentials() {
     try {
       const config = JSON.parse(await fs.readFile(configPath, 'utf-8'));
       if (config?.pocketbase?.admin?.email && config?.pocketbase?.admin?.password) {
-        console.log(kleur.cyan('\n🔐  Using PocketBase admin credentials from ~/.bit.conf'));
+        console.log(kleur.cyan('\n🔐  Using PocketBase admin credentials from ~/.bit.conf\n'));
+        pbCredsFromConfig = true;
         return {
           email: config.pocketbase.admin.email,
           pass: config.pocketbase.admin.password
@@ -419,9 +421,9 @@ export function newCommand(program) {
         await validateProjectName(name);
         const pbCreds = await getPocketBaseCredentials();
         
-        console.log(kleur.yellow('\n⚠️  Please save these credentials, you\'ll need them to access the admin UI'));
-        console.log(kleur.white(`Email: ${pbCreds.email}`));
-        console.log(kleur.white(`Password: ${'*'.repeat(pbCreds.pass.length)}\n`));
+        if (!pbCredsFromConfig) {
+          console.log(kleur.bold().underline().yellow('\n⚠️  Please remember these credentials, you\'ll need them to access the PocketBaseadmin UI!\n'));
+        }
         
         const projectPath = path.resolve(process.cwd(), name);
         
