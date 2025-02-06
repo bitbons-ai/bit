@@ -8,6 +8,7 @@ import net from 'net';
 import { fileURLToPath } from 'url';
 import { intro, outro, text, password, isCancel } from '@clack/prompts';
 import fetch from 'node-fetch';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -196,15 +197,23 @@ function validateEmail(email) {
   return re.test(email) ? undefined : 'Please enter a valid email address';
 }
 
+function getGitEmail() {
+  try {
+    return execSync('git config user.email').toString().trim();
+  } catch (error) {
+    return null;
+  }
+}
+
 async function getPocketBaseCredentials() {
   try {
     // Try to read from config file first
-    const homedir = (await import('os')).homedir();
-    const configPath = path.join(homedir, '.bit.conf');
+    const { homedir } = await import('os');
+    const configPath = path.join(homedir(), '.bit.conf');
     
     try {
       const config = JSON.parse(await fs.readFile(configPath, 'utf-8'));
-      if (config.pocketbase?.admin?.email && config.pocketbase?.admin?.password) {
+      if (config?.pocketbase?.admin?.email && config?.pocketbase?.admin?.password) {
         console.log(kleur.cyan('\n🔐  Using PocketBase admin credentials from ~/.bit.conf'));
         return {
           email: config.pocketbase.admin.email,
@@ -220,12 +229,16 @@ async function getPocketBaseCredentials() {
     console.log(kleur.white('These credentials will be used to access the PocketBase Admin UI'));
     console.log(kleur.white('where you can manage your database, collections and files.\n'));
 
+    // Try to get git email for prefill
+    const gitEmail = getGitEmail();
+    
     const email = await text({
       message: 'Enter admin email:',
+      ...(gitEmail && { initialValue: gitEmail }),
       validate: (value) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(value) ? undefined : 'Please enter a valid email address';
-      },
+      }
     });
 
     if (isCancel(email)) {
@@ -237,7 +250,7 @@ async function getPocketBaseCredentials() {
       validate: (value) => {
         if (value.length < 5) return 'Password must be at least 5 characters';
         return;
-      },
+      }
     });
 
     if (isCancel(pass)) {
