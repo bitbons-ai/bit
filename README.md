@@ -27,7 +27,8 @@ Bit sets you up with a modern, battle-tested stack:
 2. Create your masterpiece:
 
    ```bash
-   bit new my-project && cd my-project
+   bit new my-awesome-project
+   cd my-awesome-project
    ```
 
 3. Choose your style:
@@ -51,7 +52,8 @@ Bit sets you up with a modern, battle-tested stack:
 | `bit new <name>`       | Create a new project           |
 | `bit start`           | Start development environment   |
 | `bit stop`            | Stop all services              |
-| `bit logs`            | View service logs              |
+| `bit logs`            | View containers logs              |
+| `bit down`            | Delete all containers and volumes    |
 | `bit deploy [target]` | Deploy to production           |
 
 ### Ready for the World?
