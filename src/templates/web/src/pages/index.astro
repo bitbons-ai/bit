@@ -10,10 +10,10 @@ let connectionColor = 'blue';
 try {
   const pb = new PocketBase(import.meta.env.POCKETBASE_URL || 'https://{{name}}-pb.fly.dev');
   await pb.health.check();
-  connectionStatus = 'Successfully connected to PocketBase!';
+  connectionStatus = `<b class="green">Successfully</b> connected to PocketBase!`;
   connectionColor = 'green';
 } catch (error) {
-  connectionStatus = `Failed to connect to PocketBase: ${error.message}`;
+  connectionStatus = `<b class="red">Failed</b> to connect to PocketBase: ${error.message}`;
   connectionColor = 'red';
 }
 ---
@@ -54,8 +54,7 @@ try {
         <li>Access PocketBase Admin UI at <a href="http://localhost:8090/_/">http://localhost:8090/_/</a></li>
       </ul>
       <div class={`callout ${connectionColor}`}>
-        <h3>PocketBase Connection</h3>
-        <p>{connectionStatus}</p>
+        <p set:html={connectionStatus}></p>
       </div>
     </main>
   </body>
