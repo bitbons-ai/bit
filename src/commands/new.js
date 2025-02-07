@@ -293,7 +293,6 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
       "npm",
       [
         "create",
-        "--yes",
         "astro@latest",
         ".",
         "--",
@@ -302,6 +301,7 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
         "--no-install",
         "--typescript",
         "--fancy",
+        "--yes",
       ],
       {
         cwd: webPath,
