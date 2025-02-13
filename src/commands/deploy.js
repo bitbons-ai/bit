@@ -38,8 +38,10 @@ async function deployProject(target) {
       return;
     }
 
-    // Get project name from current directory
-    const projectName = path.basename(process.cwd());
+    // Get project name from package.json
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+    const projectName = packageJson.name;
 
     // Check for fly.toml files
     const webFlyConfig = path.join(process.cwd(), 'apps', 'web', 'fly.toml');

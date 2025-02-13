@@ -17,26 +17,26 @@ let pbCredsFromConfig = false;
 function resolveTemplatesDir() {
   // Determine the base path for template resolution
   const baseModulePath = path.dirname(fileURLToPath(import.meta.url));
-  
+
   // Get the global node_modules path
-  const globalNodeModulesPath = path.join(process.env.HOME, '.nvm', 'versions', 'node', 
+  const globalNodeModulesPath = path.join(process.env.HOME, '.nvm', 'versions', 'node',
     `v${process.version.slice(1)}`, 'lib', 'node_modules');
-  
+
   // Check potential template locations in order of preference
   const potentialPaths = [
     // 1. Local project templates (current working directory)
     path.join(process.cwd(), 'src', 'templates'),
-    
+
     // 2. Relative to current script (local development)
     path.join(baseModulePath, '..', 'templates'),
-    
+
     // 3. Global installation paths
     path.join(baseModulePath, 'templates'),
     path.join(baseModulePath, '..', 'lib', 'templates'),
-    
+
     // 4. Absolute global installation paths
     path.join(baseModulePath, '..', '..', 'templates'),
-    
+
     // 5. Fallback using Node.js module resolution
     path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'src', 'templates'),
     path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'templates')
@@ -46,17 +46,17 @@ function resolveTemplatesDir() {
     try {
       // Normalize the path to resolve any symlinks or relative components
       const normalizedPath = path.resolve(templatePath);
-      
+
       // Check if the templates directory exists and is readable
       fsSync.accessSync(normalizedPath, fsSync.constants.R_OK);
-      
+
       // Additional check to ensure it's a directory
       const stats = fsSync.statSync(normalizedPath);
       if (stats.isDirectory()) {
         // Verify the directory contains expected template files
         const templateFiles = fsSync.readdirSync(normalizedPath);
         const requiredTemplates = ['README.md', 'package.json'];
-        const hasRequiredTemplates = requiredTemplates.every(file => 
+        const hasRequiredTemplates = requiredTemplates.every(file =>
           templateFiles.includes(file)
         );
 
@@ -90,12 +90,12 @@ async function copyDir(src, dest, replacements = {}) {
       await copyDir(srcPath, destPath, replacements);
     } else {
       let content = await fs.readFile(srcPath, 'utf-8');
-      
+
       // Replace placeholders
       for (const [key, value] of Object.entries(replacements)) {
         content = content.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
-      
+
       await fs.writeFile(destPath, content);
     }
   }
@@ -114,10 +114,10 @@ async function checkPort(port) {
 
 async function verifyDockerEnvironment() {
   const spinner = ora('Checking Docker environment...').start();
-  
+
   try {
     const { execa } = await import('execa');
-    
+
     // Check if Docker is installed
     try {
       await execa('docker', ['--version']);
@@ -126,7 +126,7 @@ async function verifyDockerEnvironment() {
       console.log(kleur.yellow('\nPlease install Docker from https://www.docker.com/products/docker-desktop'));
       process.exit(1);
     }
-    
+
     // Check if Docker daemon is running
     try {
       await execa('docker', ['info']);
@@ -135,18 +135,18 @@ async function verifyDockerEnvironment() {
       console.log(kleur.yellow('\nPlease start Docker Desktop and try again'));
       process.exit(1);
     }
-    
+
     // Check port availability
     const ports = [4321, 8090]; // Astro and PocketBase ports
     const busyPorts = [];
-    
+
     for (const port of ports) {
       const available = await checkPort(port);
       if (!available) {
         busyPorts.push(port);
       }
     }
-    
+
     if (busyPorts.length > 0) {
       spinner.fail(kleur.red(`The following ports are already in use: ${busyPorts.join(', ')}`));
       console.log(kleur.yellow('\nPlease free up these ports and try again:'));
@@ -159,7 +159,7 @@ async function verifyDockerEnvironment() {
       console.log(kleur.white('  docker stop <id>   # Stop a specific container'));
       process.exit(1);
     }
-    
+
     spinner.succeed(kleur.blue('Docker environment ready'));
   } catch (error) {
     spinner.fail(kleur.red('Failed to verify Docker environment'));
@@ -169,15 +169,16 @@ async function verifyDockerEnvironment() {
 }
 
 async function validateProjectName(name) {
-  if (!/^[a-z0-9-]+$/.test(name)) {
-    throw new Error('Project name can only contain lowercase letters, numbers, and hyphens');
+  // Allow domain names (e.g., example.com) or simple project names (e.g., my-project)
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(name)) {
+    throw new Error('Project name can only contain lowercase letters, numbers, hyphens, and dots (for domain names)');
   }
-  
+
   const projectPath = path.resolve(process.cwd(), name);
-  
+
   try {
     const stats = await fs.stat(projectPath);
-    
+
     if (stats.isDirectory()) {
       console.error(kleur.red(`\n❌ Error: Directory '${name}' already exists in the current directory.`));
       console.error(kleur.yellow('Please choose a different project name or remove the existing directory.\n'));
@@ -211,7 +212,7 @@ async function getPocketBaseCredentials() {
     // Try to read from config file first
     const { homedir } = await import('os');
     const configPath = path.join(homedir(), '.bit.conf');
-    
+
     try {
       const config = JSON.parse(await fs.readFile(configPath, 'utf-8'));
       if (config?.pocketbase?.admin?.email && config?.pocketbase?.admin?.password) {
@@ -233,7 +234,7 @@ async function getPocketBaseCredentials() {
 
     // Try to get git email for prefill
     const gitEmail = getGitEmail();
-    
+
     const email = await text({
       message: 'Enter admin email:',
       ...(gitEmail && { initialValue: gitEmail }),
@@ -271,7 +272,7 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
   // Create base directories
   await fs.mkdir(projectPath, { recursive: true });
   await fs.mkdir(path.join(projectPath, 'apps'), { recursive: true });
-  
+
   console.log('Copying root files...');
   // Copy root level files
   const rootFiles = ['package.json', 'docker-compose.yml', 'README.md'];
@@ -285,7 +286,7 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
   // Create and initialize Astro project
   const webPath = path.join(projectPath, 'apps/web');
   await fs.mkdir(webPath, { recursive: true });
-  
+
   // Initialize Astro project
   const { spawn } = await import('child_process');
   await new Promise((resolve, reject) => {
@@ -386,7 +387,7 @@ async function getAllDependencyVersions() {
     astroVersion: astroVersion || '5.2.3',
     astroNodeVersion: astroNodeVersion || '9.0.2',
     astroIconVersion: astroIconVersion || '1.1.5',
-    pocketbaseVersion: pocketbaseVersion || '0.25.1'  
+    pocketbaseVersion: pocketbaseVersion || '0.25.1'
   };
 }
 
@@ -415,42 +416,42 @@ export function newCommand(program) {
     .action(async (name, options) => {
       try {
         intro(kleur.cyan('∴ Creating your new project...'));
-        
+
         // Verify Docker environment before proceeding
         await verifyDockerEnvironment();
-        
+
         await validateProjectName(name);
         const pbCreds = await getPocketBaseCredentials();
-        
+
         if (!pbCredsFromConfig) {
           console.log(kleur.bold().underline().yellow('\n⚠️  Please remember these credentials, you\'ll need them to access the PocketBaseadmin UI!\n'));
         }
-        
+
         const projectPath = path.resolve(process.cwd(), name);
-        
+
         // Create project structure
         const structureSpinner = ora('Creating project...').start();
         await createProjectStructure(projectPath, name, options, pbCreds);
         structureSpinner.succeed(kleur.blue('Project structure created'));
-        
+
         // Create environment files
         const envSpinner = ora('Creating environment files...').start();
-        
+
         // Root environment with PocketBase credentials
         await fs.writeFile(
           path.join(projectPath, '.env.development'),
           `SUPERUSER_EMAIL=${pbCreds.email}\nSUPERUSER_PASSWORD=${pbCreds.pass}\n`
         );
-        
+
         envSpinner.succeed(kleur.blue('Environment files created'));
-        
+
         outro(kleur.green('\n✨ Project created successfully!'));
         console.log(kleur.cyan().bold('Next steps:'));
         console.log('  ', kleur.gray('$'), kleur.white(`cd ${name}`));
         console.log('  ', kleur.gray('$'), kleur.white('bit start'), kleur.gray('# Start development environment (Ctrl+C to detach)'));
         console.log('  ', kleur.cyan().bold('\n📦 PocketBase admin UI will be available at:'));
         console.log(kleur.white('🔗  http://localhost:8090/_/'));
-        
+
       } catch (error) {
         console.error(kleur.red('\nError:'), error.message);
         process.exit(1);
