@@ -339,18 +339,20 @@ async function getPocketBaseCredentials() {
 }
 
 function sanitizeProjectName(name) {
-  // Replace dots and any other invalid characters with hyphens
-  // fly.io app names can only contain lowercase letters, numbers, and hyphens
-  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  // Replace dots with -dot- and any other invalid characters with hyphens
+  return name.toLowerCase()
+    .replace(/\./g, '-dot-')
+    .replace(/[^a-z0-9-]/g, '-');
 }
 
 async function createProjectStructure(projectPath, name, options, pbCreds) {
   const spinner = ora('Creating project structure...').start();
+  // Get the sanitized name for Docker and fly.io compatibility
   const projectName = sanitizeProjectName(name);
 
   try {
     console.log('Creating base directories...');
-    // Create base directories
+    // Create base directories using original name (with dots)
     await fs.mkdir(projectPath, { recursive: true });
     await fs.mkdir(path.join(projectPath, 'apps'), { recursive: true });
 
@@ -359,16 +361,9 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
     const rootFiles = ['package.json', 'docker-compose.yml', 'README.md'];
     for (const file of rootFiles) {
       let content = await fs.readFile(path.join(TEMPLATES_DIR, file), 'utf-8');
-      if (file === 'package.json') {
-        // Use sanitized name for package.json (for fly.io compatibility)
-        content = content.replace(/{{name}}/g, projectName);
-      } else if (file === 'docker-compose.yml') {
-        // Keep dots in the name for Docker Compose
-        content = content.replace(/{{name}}/g, name.toLowerCase());
-      } else {
-        // Use original name for display in other files
-        content = content.replace(/{{name}}/g, name);
-      }
+      // Use sanitized name for all files to match Docker's behavior
+      content = content.replace(/{{name}}/g, projectName);
+      // Write to files using original path with dots
       await fs.writeFile(path.join(projectPath, file), content);
     }
 
@@ -516,6 +511,23 @@ async function checkServiceReady(url, maxAttempts = 60) {
   return false;
 }
 
+async function waitForServices(spinner) {
+  // Check both services in parallel
+  const [pbReady, astroReady] = await Promise.all([
+    checkServiceReady('http://localhost:8090/api/health'),
+    checkServiceReady('http://localhost:4321')
+  ]);
+
+  if (!pbReady) {
+    spinner.warn(kleur.yellow('PocketBase is taking longer than expected to start...'));
+  }
+  if (!astroReady) {
+    spinner.warn(kleur.yellow('Astro is taking longer than expected to start...'));
+  }
+
+  return pbReady && astroReady;
+}
+
 export function newCommand(program) {
   program
     .command('new <project-name>')
@@ -570,9 +582,18 @@ export function newCommand(program) {
           // Unref the child process to allow Node.js to exit
           subprocess.unref();
 
-          // Wait briefly for services to start
+          // Wait briefly for services to start initializing
           await new Promise(resolve => setTimeout(resolve, 2000));
-          spinner.succeed(kleur.green('🚀 Services started successfully'));
+          
+          // Check if services are ready
+          spinner.text = 'Waiting for services to be ready...';
+          const servicesReady = await waitForServices(spinner);
+          
+          if (servicesReady) {
+            spinner.succeed(kleur.green('🚀 Services started successfully'));
+          } else {
+            spinner.warn(kleur.yellow('Services started but might not be fully ready yet'));
+          }
 
           // Show service information in a more organized way
           console.log(kleur.green().bold('\nServices:'));
@@ -589,16 +610,15 @@ export function newCommand(program) {
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit deploy') + kleur.white(' - Launch your site on fly.io'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit stop') + kleur.white(' - Shut down the development environment'));
           
-          // Wait a bit longer before opening browser
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          
-          // Open web app in browser
-          try {
-            await execa('open', ['http://localhost:4321']);
-          } catch (error) {
-            // Silently handle error - we already showed the URLs above
+          // Only open browser if services are ready
+          if (servicesReady) {
+            // Open web app in browser
+            try {
+              await execa('open', ['http://localhost:4321']);
+            } catch (error) {
+              // Silently handle error - we already showed the URLs above
+            }
           }
-
           // Change to the project directory by starting a new shell
           try {
             await execa('exec', ['$SHELL'], { 
