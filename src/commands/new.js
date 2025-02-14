@@ -529,7 +529,9 @@ export function newCommand(program) {
         const pbCreds = await getPocketBaseCredentials();
 
         if (!pbCredsFromConfig) {
-          console.log(kleur.bold().underline().yellow('\n⚠️  Please remember these credentials, you\'ll need them to access the PocketBaseadmin UI!\n'));
+          console.log(kleur.yellow('\n⚠️  Please save these credentials, you\'ll need them to access the admin UI'));
+          console.log(kleur.white(`Email: ${pbCreds.email}`));
+          console.log(kleur.white(`Password: ${'*'.repeat(pbCreds.pass.length)}\n`));
         }
 
         const projectPath = path.resolve(process.cwd(), name);
