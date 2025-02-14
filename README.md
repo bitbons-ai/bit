@@ -7,7 +7,7 @@
 ![Creating a project with bit](./bit-demo.gif)
 
 > [!TIP]
-> ### New on `2.1.7`
+> **New** on `2.1.7`
 > - `bit start` opens a browser window automagically on project creation
 > -  Random pass is generated for PocketBase superuser if you're not using `~/.bit.conf`
 > - `bit log` needs to be invoked if you wanna check'em.
