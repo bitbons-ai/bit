@@ -26,6 +26,12 @@ async function checkFlyAppExists(appName) {
   }
 }
 
+function sanitizeProjectName(name) {
+  // Replace dots and any other invalid characters with hyphens
+  // fly.io app names can only contain lowercase letters, numbers, and hyphens
+  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+}
+
 async function deployProject(target) {
   const spinner = ora('Preparing deployment...').start();
 
@@ -38,10 +44,10 @@ async function deployProject(target) {
       return;
     }
 
-    // Get project name from package.json
+    // Get project name from package.json (already sanitized)
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
-    const projectName = packageJson.name;
+    const projectName = packageJson.name;  // No need to sanitize, it's already sanitized in new.js
 
     // Check for fly.toml files
     const webFlyConfig = path.join(process.cwd(), 'apps', 'web', 'fly.toml');
