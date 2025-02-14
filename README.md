@@ -1,5 +1,5 @@
 # ∴ bit → your stack sidekick
-![Version](https://img.shields.io/github/package-json/v/bitbonsai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@mauricio.wolff/bit) ![Issues](https://img.shields.io/github/issues/bitbonsai/bit) ![Last Commit](https://img.shields.io/github/last-commit/bitbonsai/bit) 
+![Version](https://img.shields.io/github/package-json/v/bitbons-ai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@bitbons.ai/bit) ![Issues](https://img.shields.io/github/issues/bitbons-ai/bit) ![Last Commit](https://img.shields.io/github/last-commit/bitbons-ai/bit) 
 
 
 **Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
@@ -7,7 +7,7 @@
 ![Creating a project with bit](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-demo.gif)
 
 > [!TIP]
-> **New** on `2.1.7`
+> **New** on `2.1.8`
 > - `bit start` opens a browser window automagically on project creation
 > -  Random pass is generated for PocketBase superuser if you're not using `~/.bit.conf`
 > - `bit log` needs to be invoked if you wanna check'em.
@@ -27,7 +27,7 @@ Bit sets you up with a modern, battle-tested stack:
 1. Install Bit:
 
    ```bash
-   npm install -g @mauricio.wolff/bit
+   npm i -g @bitbons.ai/bit
    ```
 
 2. Create your masterpiece:

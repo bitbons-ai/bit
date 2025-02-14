@@ -38,8 +38,8 @@ function resolveTemplatesDir() {
     path.join(baseModulePath, '..', '..', 'templates'),
 
     // 5. Fallback using Node.js module resolution
-    path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'src', 'templates'),
-    path.join(globalNodeModulesPath, '@mauricio.wolff', 'bit', 'templates')
+    path.join(globalNodeModulesPath, '@bitbons-ai', 'bit', 'src', 'templates'),
+    path.join(globalNodeModulesPath, '@bitbons-ai', 'bit', 'templates')
   ];
 
   for (const templatePath of potentialPaths) {
@@ -130,7 +130,7 @@ async function checkPortsAndHandleContainers(ports, spinner) {
   try {
     const { execa } = await import('execa');
     const { stdout } = await execa('docker', ['ps', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}']);
-    
+
     // Parse docker ps output and match against our busy ports
     const containers = stdout.split('\n').filter(Boolean);
     for (const container of containers) {
@@ -145,14 +145,14 @@ async function checkPortsAndHandleContainers(ports, spinner) {
     if (containersByPort.size > 0) {
       // Stop the spinner before showing interactive content
       spinner.stop();
-      
+
       console.log(kleur.yellow().bold('\n⚠️  The following ports are in use by Docker containers:'));
       for (const [port, container] of containersByPort) {
         console.log(
-          kleur.white('  • Port ') + 
-          kleur.cyan().bold(port) + 
-          kleur.white(': Container ') + 
-          kleur.magenta().bold(container.name) + 
+          kleur.white('  • Port ') +
+          kleur.cyan().bold(port) +
+          kleur.white(': Container ') +
+          kleur.magenta().bold(container.name) +
           kleur.gray(` (${container.id})`)
         );
       }
@@ -218,10 +218,10 @@ async function verifyDockerEnvironment() {
 
     // Check port availability
     const ports = [4321, 8090]; // Astro and PocketBase ports
-    
+
     spinner.text = 'Checking port availability...';
     const portsAvailable = await checkPortsAndHandleContainers(ports, spinner);
-    
+
     if (!portsAvailable) {
       spinner.fail(kleur.red('Required ports are not available'));
       process.exit(1);
@@ -567,7 +567,7 @@ export function newCommand(program) {
         envSpinner.succeed(kleur.blue('Environment files created'));
 
         outro(kleur.green('\n✨ Project created successfully!'));
-        
+
         // Start services in detached mode
         const spinner = ora('Starting services...').start();
         const { execa } = await import('execa');
@@ -578,17 +578,17 @@ export function newCommand(program) {
             env: { ...process.env, FORCE_COLOR: 'true' },
             cwd: projectPath  // Run in the project directory
           });
-          
+
           // Unref the child process to allow Node.js to exit
           subprocess.unref();
 
           // Wait briefly for services to start initializing
           await new Promise(resolve => setTimeout(resolve, 2000));
-          
+
           // Check if services are ready
           spinner.text = 'Waiting for services to be ready...';
           const servicesReady = await waitForServices(spinner);
-          
+
           if (servicesReady) {
             spinner.succeed(kleur.green('🚀 Services started successfully'));
           } else {
@@ -602,14 +602,14 @@ export function newCommand(program) {
           console.log(kleur.green('  • PocketBase'));
           console.log(kleur.white('    ') + kleur.cyan().underline('http://localhost:8090'));
           console.log(kleur.white('    Admin: ') + kleur.cyan().underline('http://localhost:8090/_/'));
-          
+
           // Commands section - ordered by typical workflow
           console.log(kleur.white('\nCommands:'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit logs') + kleur.white(' - Watch development logs'));
           console.log(kleur.white('    Press ') + kleur.yellow().bold('Ctrl+C') + kleur.white(' when done, services will keep running'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit deploy') + kleur.white(' - Launch your site on fly.io'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit stop') + kleur.white(' - Shut down the development environment'));
-          
+
           // Only open browser if services are ready
           if (servicesReady) {
             // Open web app in browser
@@ -621,8 +621,8 @@ export function newCommand(program) {
           }
           // Change to the project directory by starting a new shell
           try {
-            await execa('exec', ['$SHELL'], { 
-              shell: true, 
+            await execa('exec', ['$SHELL'], {
+              shell: true,
               stdio: 'inherit',
               cwd: projectPath
             });
