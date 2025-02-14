@@ -1,6 +1,6 @@
 {
   "name": "@bitbons.ai/bit",
-  "version": "2.1.9",
+  "version": "2.2.0",
   "description": "∴ bit → your stack sidekick. A CLI tool for scaffolding modern web projects with monorepo structure, Docker Compose, PocketBase, and Astro.",
   "main": "src/cli.js",
   "type": "module",
