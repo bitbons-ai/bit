@@ -319,7 +319,7 @@ async function getPocketBaseCredentials() {
     const randomPassword = `${rand()}-${rand()}`;
 
     const pass = await text({
-      message: 'Enter admin password:',
+      message: 'Enter admin password (press Enter for randomly generated one):',
       initialValue: randomPassword,
       validate: (value) => {
         if (value.length < 5) return 'Password must be at least 5 characters';
@@ -363,8 +363,8 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
         // Use sanitized name for package.json (for fly.io compatibility)
         content = content.replace(/{{name}}/g, projectName);
       } else if (file === 'docker-compose.yml') {
-        // Use original name for Docker Compose (more readable with domains)
-        content = content.replace(/{{name}}/g, name);
+        // Keep dots in the name for Docker Compose
+        content = content.replace(/{{name}}/g, name.toLowerCase());
       } else {
         // Use original name for display in other files
         content = content.replace(/{{name}}/g, name);
