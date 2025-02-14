@@ -6,12 +6,6 @@
 
 ![Creating a project with bit](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-demo.gif)
 
-> [!TIP]
-> **New** on `2.1.8`
-> - `bit start` opens a browser window automagically on project creation
-> -  Random pass is generated for PocketBase superuser if you're not using `~/.bit.conf`
-> - `bit log` needs to be invoked if you wanna check'em.
-
 ## ✨ What's in the Box?
 
 Bit sets you up with a modern, battle-tested stack:
