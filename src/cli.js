@@ -24,6 +24,10 @@ async function main() {
     .name(kleur.bold().green('bit'))
     .description(kleur.gray('CLI to scaffold and manage modern web projects'))
     .version(version)
+    .addHelpText('after', `\n${kleur.bold().yellow('Links:')}
+  ${kleur.cyan('NPM:    ')}${kleur.blue('https://www.npmjs.com/package/@bitbons.ai/bit')}
+  ${kleur.cyan('GitHub: ')}${kleur.blue('https://github.com/bitbons-ai/bit')}
+`)
     .configureHelp({
       commandUsage: () => kleur.yellow('bit [options] [command]'),
       subcommandDescription: (cmd) => kleur.gray(cmd.description()),
