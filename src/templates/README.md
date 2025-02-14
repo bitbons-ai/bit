@@ -22,7 +22,7 @@
 
 3. Start the development environment:
    ```bash
-   bun run dev
+   bit start # Press Ctrl+C to detach and keep services running
    ```
    This will start both the Astro frontend and PocketBase backend in development mode.
 
@@ -63,16 +63,15 @@
 
 All commands are run from the project root:
 
-| Command           | Action                                           |
-|:-----------------|:------------------------------------------------|
-| `bun install`    | Install project dependencies                     |
-| `bun run dev`    | Start development environment                    |
-| `bun run daemon` | Start in detached mode (run in background)      |
-| `bun run build`  | Build Docker images                             |
-| `bun run start`  | Start existing containers                       |
-| `bun run stop`   | Stop containers                                 |
-| `bun run down`   | Stop and remove containers                      |
-| `bun run clean`  | Stop containers and remove volumes (reset data) |
+| Command | Description |
+|---------|-------------|
+| `bun install` | Install project dependencies |
+| `bun run dev` | Start development environment |
+| `bun run build` | Build for production |
+| `bun run start` | Start containers |
+| `bun run stop` | Stop containers |
+| `bun run down` | Stop and remove containers |
+| `bun run clean` | Remove all data (including volumes) |
 
 ## ⚙️ Configuration
 

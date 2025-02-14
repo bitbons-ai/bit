@@ -12,7 +12,6 @@ examples/
 *.spec.js
 
 # Ignore documentation and media
-README.md
 *.gif
 *.mp4
 

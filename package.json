@@ -1,12 +1,16 @@
 {
   "name": "@mauricio.wolff/bit",
-  "version": "2.0.3",
+  "version": "2.1.7",
   "description": "∴ bit → your stack sidekick. A CLI tool for scaffolding modern web projects with monorepo structure, Docker Compose, PocketBase, and Astro.",
   "main": "src/cli.js",
   "type": "module",
   "bin": {
     "bit": "src/cli.js"
   },
+  "files": [
+    "src/**/*",
+    "templates/**/*"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,4 +1,4 @@
-app = "{{name}}-pb"
+app = "{{sanitizedName}}-pb"
 primary_region = "ams"
 
 [build]

@@ -27,16 +27,13 @@ Bit sets you up with a modern, battle-tested stack:
 2. Create your masterpiece:
 
    ```bash
-   bit new my-awesome-project && cd my-awesome-project
+   bit new my-awesome-project
+   cd my-awesome-project
    ```
 
 3. Choose your style:
    ```bash
-   bit start # Starts pb and astro and watches log files
-   ```
-   or
-   ```bash
-   bit daemon # Runs in background, use bit stop later
+   bit start # Press Ctrl+C to detach and keep services running
    ```
 
 **That's it!** Visit your creation at:
@@ -50,12 +47,14 @@ Bit sets you up with a modern, battle-tested stack:
 
 ### During Development
 
-| Command                  | What it Does                       |
-| ------------------------ | ---------------------------------- |
-| `bit new <project-name>` | Create a new project               |
-| `bit start`              | Launch with live logs              |
-| `bit daemon`             | Run silently in background         |
-| `bit stop`               | Shut it down and delete containers |
+| Command                 | Description                     |
+|------------------------|---------------------------------|
+| `bit new <name>`       | Create a new project           |
+| `bit start`           | Start development environment   |
+| `bit stop`            | Stop all services              |
+| `bit logs`            | View containers logs              |
+| `bit down`            | Delete all containers and volumes    |
+| `bit deploy [target]` | Deploy to production           |
 
 ### Ready for the World?
 
@@ -93,7 +92,7 @@ Create `~/.bit.conf` to use one email/password for PB's superuser (and to fastra
 {
   "pocketbase": {
     "admin": {
-      "email": "pb-admin@your-email.com",
+      "email": "pb-admin@your-domain.com",
       "password": "your-secure-password"
     }
   }

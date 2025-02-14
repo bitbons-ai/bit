@@ -1,4 +1,4 @@
-app = "{{name}}-web"
+app = "{{sanitizedName}}-web"
 primary_region = "ams"
 
 [build]
@@ -13,7 +13,7 @@ primary_region = "ams"
   processes = ["app"]
 
 [env]
-  POCKETBASE_URL = "https://{{name}}-pb.fly.dev"
+  POCKETBASE_URL = "https://{{sanitizedName}}-pb.fly.dev"
   NODE_ENV = "production"
 
 [[vm]]
