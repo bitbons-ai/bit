@@ -6,11 +6,11 @@
 
 ![Creating a project with bit](./bit-demo.gif)
 
-[!TIP]
-### New on `2.1.7`
-- `bit start` opens a browser window automagically on project creation
--  Random pass is generated for PocketBase superuser if you're not using `~/.bit.conf`
-- `bit log` needs to be invoked if you wanna check'em.
+> [!TIP]
+> ### New on `2.1.7`
+> - `bit start` opens a browser window automagically on project creation
+> -  Random pass is generated for PocketBase superuser if you're not using `~/.bit.conf`
+> - `bit log` needs to be invoked if you wanna check'em.
 
 ## ✨ What's in the Box?
 
@@ -135,8 +135,9 @@ We've partnered with [fly.io](https://fly.io) for smooth deployments:
 
 ![Deploying to fly.io, real time](./bit-deploy-pb.gif)
 
-[!IMPORTANT]
-If you want to point your domain to the web app, Add a `CNAME` entry for your domain pointing to your fly.io web app, and add a free ssl certificate for the domain. [Here's how to do it in details](https://fly.io/docs/networking/custom-domain/).
+> [!IMPORTANT]
+> If you want to point your domain to the web app, Add a `CNAME` entry for your domain pointing to your fly.io web app, and add a free ssl certificate for the domain.
+> [Here's how to do it in details](https://fly.io/docs/networking/custom-domain/).
 
 ## 🧑‍💻 For the Builders
 
