@@ -4,7 +4,7 @@
 
 **Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
 
-![Creating a project with bit](./bit-demo.gif)
+![Creating a project with bit](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-demo.gif)
 
 > [!TIP]
 > **New** on `2.1.7`
@@ -47,7 +47,7 @@ Bit sets you up with a modern, battle-tested stack:
 - ✨ Frontend: http://localhost:4321
 - 👔 Admin Dashboard: http://localhost:8090/\_/
 
-![Screenshot of default webapp](./bit-web.webp)
+![Screenshot of default webapp](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-web.webp)
 
 ## 🎮 Command Center
 
@@ -133,7 +133,7 @@ We've partnered with [fly.io](https://fly.io) for smooth deployments:
 
 ### Deploying PocketBase to fly.io in real time
 
-![Deploying to fly.io, real time](./bit-deploy-pb.gif)
+![Deploying to fly.io, real time](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-deploy-pb.gif)
 
 > [!IMPORTANT]
 > If you want to point your domain to the web app, Add a `CNAME` entry for your domain pointing to your fly.io web app, and add a free ssl certificate for the domain.
