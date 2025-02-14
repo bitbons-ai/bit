@@ -24,12 +24,15 @@ try {
 
       <h1>Welcome to {{name}}</h1>
       <p>
-        This project was created with <code><a href="https://github.com/bitbonsai/bit">∴ bit</a></code>. Edit this page in <code>src/pages/index.astro</code>
+        This project was created with <code><a href="https://github.com/bitbonsai/bit">∴ bit</a></code>.
+      </p>
+      <p>
+        Edit this page in <code>{{name}}/src/pages/index.astro</code>.
       </p>
 
       <h2>Project Structure</h2>
       <pre>
-        /
+        /{{name}}
         ├── apps/
         │   ├── web/                # Astro application
         │   │   ├── src/
@@ -48,9 +51,9 @@ try {
 
       <h2>Next Steps</h2>
       <ul>
-        <li>Edit this page in <code>src/pages/index.astro</code></li>
-        <li>Add your components in <code>src/components</code></li>
-        <li>Style your app in <code>src/css</code></li>
+        <li>Edit this page in <code>{{name}}/src/pages/index.astro</code></li>
+        <li>Add your components in <code>{{name}}/src/components</code></li>
+        <li>Style your app in <code>{{name}}/src/css</code></li>
         <li>Access PocketBase Admin UI at <a href="http://localhost:8090/_/">http://localhost:8090/_/</a></li>
       </ul>
       <div class={`callout ${connectionColor}`}>
