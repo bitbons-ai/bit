@@ -2,20 +2,15 @@ import fs from 'fs/promises';
 import path from 'path';
 import kleur from 'kleur';
 import ora from 'ora';
-import { execSync } from 'child_process';
+import { execa } from 'execa';
+import { checkCliToolInstalled } from '../utils/common.js';
 
 async function checkFlyInstalled() {
-  try {
-    execSync('flyctl version', { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
+  return checkCliToolInstalled('flyctl');
 }
 
 async function checkFlyAppExists(appName) {
   try {
-    const { execa } = await import('execa');
     const { stdout } = await execa('flyctl', ['apps', 'list'], {
       stdio: 'pipe',
       env: { ...process.env, FORCE_COLOR: 'true' }
@@ -26,10 +21,47 @@ async function checkFlyAppExists(appName) {
   }
 }
 
-function sanitizeProjectName(name) {
-  // Replace dots and any other invalid characters with hyphens
-  // fly.io app names can only contain lowercase letters, numbers, and hyphens
-  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+// Function to read app name from fly.toml
+async function getAppNameFromConfig(configPath) {
+  try {
+    const config = await fs.readFile(configPath, 'utf-8');
+    const appNameMatch = config.match(/^app\s*=\s*["']([^"']+)["']/m);
+    return appNameMatch ? appNameMatch[1] : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function deployWebApp(spinner) {
+  const webConfigPath = path.join(process.cwd(), 'apps', 'web', 'fly.toml');
+  const webAppName = await getAppNameFromConfig(webConfigPath);
+  
+  if (!webAppName) {
+    spinner.fail(kleur.red('Could not find app name in fly.toml'));
+    process.exit(1);
+  }
+
+  // Stop spinner to prevent blinking during output
+  spinner.stop();
+
+  // Launch app if it doesn't exist
+  const webAppExists = await checkFlyAppExists(webAppName);
+  if (!webAppExists) {
+    console.log(kleur.yellow('Web app not found. Launching...'));
+    await execa('fly', ['launch', '--name', webAppName, '--copy-config', '--no-deploy', '--yes'], {
+      cwd: path.join(process.cwd(), 'apps', 'web'),
+      stdio: 'inherit'
+    });
+  }
+
+  // Deploy with streaming output
+  await execa('flyctl', ['deploy', '--ha=false'], {
+    cwd: path.join(process.cwd(), 'apps', 'web'),
+    stdio: 'inherit',
+    env: { ...process.env, FORCE_COLOR: 'true' }
+  });
+
+  console.log(kleur.green('Web app deployment completed successfully!'));
 }
 
 async function deployProject(target) {
@@ -43,11 +75,6 @@ async function deployProject(target) {
       console.log(kleur.white('  curl -L https://fly.io/install.sh | sh\n'));
       return;
     }
-
-    // Get project name from package.json (already sanitized)
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
-    const projectName = packageJson.name;  // No need to sanitize, it's already sanitized in new.js
 
     // Check for fly.toml files
     const webFlyConfig = path.join(process.cwd(), 'apps', 'web', 'fly.toml');
@@ -75,35 +102,7 @@ async function deployProject(target) {
         }
 
         console.log(kleur.cyan('\n🚀 Deploying web app on Fly.io'));
-        try {
-          const webAppName = `${projectName}-web`;
-
-          // Stop spinner to prevent blinking during output
-          spinner.stop();
-
-          // Launch app if it doesn't exist
-          const webAppExists = await checkFlyAppExists(webAppName);
-          if (!webAppExists) {
-            console.log(kleur.yellow('Web app not found. Launching...'));
-            await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], {
-              cwd: path.join(process.cwd(), 'apps', 'web'),
-              stdio: 'inherit'
-            });
-          }
-
-          // Deploy with streaming output
-          await execa('flyctl', ['deploy', '--ha=false'], {
-            cwd: path.join(process.cwd(), 'apps', 'web'),
-            stdio: 'inherit',
-            env: { ...process.env, FORCE_COLOR: 'true' }
-          });
-
-          spinner.succeed(kleur.green('Web app deployment completed successfully!'));
-        } catch (deployError) {
-          spinner.fail(kleur.red('Web app deployment failed'));
-          console.error(deployError);
-          process.exit(1);
-        }
+        await deployWebApp(spinner);
         break;
 
       case 'pb':
@@ -113,11 +112,55 @@ async function deployProject(target) {
         }
 
         console.log(kleur.cyan('\n🚀 Deploying PocketBase on Fly.io'));
-        try {
-          const pbAppName = `${projectName}-pb`;
+        const pbConfigPath = path.join(process.cwd(), 'apps', 'pb', 'fly.toml');
+        const pbAppName = await getAppNameFromConfig(pbConfigPath);
+        
+        if (!pbAppName) {
+          spinner.fail(kleur.red('Could not find app name in fly.toml'));
+          process.exit(1);
+        }
 
-          // Stop spinner to prevent blinking during output
-          spinner.stop();
+        // Stop spinner to prevent blinking during output
+        spinner.stop();
+
+        // Launch app if it doesn't exist
+        const pbAppExists = await checkFlyAppExists(pbAppName);
+        if (!pbAppExists) {
+          console.log(kleur.yellow('PocketBase app not found. Launching...'));
+          await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], {
+            cwd: path.join(process.cwd(), 'apps', 'pb'),
+            stdio: 'inherit'
+          });
+        }
+
+        // Deploy with streaming output
+        await execa('flyctl', ['deploy'], {
+          cwd: path.join(process.cwd(), 'apps', 'pb'),
+          stdio: 'inherit',
+          env: { ...process.env, FORCE_COLOR: 'true' }
+        });
+
+        spinner.succeed(kleur.green('PocketBase deployment completed successfully!'));
+        break;
+
+      case 'all':
+        if (!hasPbConfig && !hasWebConfig) {
+          spinner.fail(kleur.red('No fly.toml found in apps/web or apps/pb'));
+          process.exit(1);
+        }
+
+        // Stop spinner to prevent blinking during output
+        spinner.stop();
+
+        if (hasPbConfig) {
+          console.log(kleur.cyan('\n🚀 Deploying PocketBase on Fly.io'));
+          const pbConfigPath = path.join(process.cwd(), 'apps', 'pb', 'fly.toml');
+          const pbAppName = await getAppNameFromConfig(pbConfigPath);
+          
+          if (!pbAppName) {
+            spinner.fail(kleur.red('Could not find app name in fly.toml'));
+            process.exit(1);
+          }
 
           // Launch app if it doesn't exist
           const pbAppExists = await checkFlyAppExists(pbAppName);
@@ -136,81 +179,12 @@ async function deployProject(target) {
             env: { ...process.env, FORCE_COLOR: 'true' }
           });
 
-          spinner.succeed(kleur.green('PocketBase deployment completed successfully!'));
-        } catch (deployError) {
-          spinner.fail(kleur.red('PocketBase deployment failed'));
-          console.error(deployError);
-          process.exit(1);
-        }
-        break;
-
-      case 'all':
-        if (!hasPbConfig && !hasWebConfig) {
-          spinner.fail(kleur.red('No fly.toml found in apps/web or apps/pb'));
-          process.exit(1);
-        }
-
-        // Stop spinner to prevent blinking during output
-        spinner.stop();
-
-        if (hasPbConfig) {
-          console.log(kleur.cyan('\n🚀 Deploying PocketBase on Fly.io'));
-          try {
-            const pbAppName = `${projectName}-pb`;
-
-            // Launch app if it doesn't exist
-            const pbAppExists = await checkFlyAppExists(pbAppName);
-            if (!pbAppExists) {
-              console.log(kleur.yellow('PocketBase app not found. Launching...'));
-              await execa('flyctl', ['launch', '--name', pbAppName, '--no-deploy'], {
-                cwd: path.join(process.cwd(), 'apps', 'pb'),
-                stdio: 'inherit'
-              });
-            }
-
-            // Deploy with streaming output
-            await execa('flyctl', ['deploy'], {
-              cwd: path.join(process.cwd(), 'apps', 'pb'),
-              stdio: 'inherit',
-              env: { ...process.env, FORCE_COLOR: 'true' }
-            });
-
-            console.log(kleur.green('PocketBase deployment completed successfully!'));
-          } catch (deployError) {
-            console.error(kleur.red('PocketBase deployment failed'));
-            console.error(deployError);
-            process.exit(1);
-          }
+          console.log(kleur.green('PocketBase deployment completed successfully!'));
         }
 
         if (hasWebConfig) {
           console.log(kleur.cyan('\n🚀 Deploying web app on Fly.io'));
-          try {
-            const webAppName = `${projectName}-web`;
-
-            // Launch app if it doesn't exist
-            const webAppExists = await checkFlyAppExists(webAppName);
-            if (!webAppExists) {
-              console.log(kleur.yellow('Web app not found. Launching...'));
-              await execa('flyctl', ['launch', '--name', webAppName, '--no-deploy'], {
-                cwd: path.join(process.cwd(), 'apps', 'web'),
-                stdio: 'inherit'
-              });
-            }
-
-            // Deploy with streaming output
-            await execa('flyctl', ['deploy'], {
-              cwd: path.join(process.cwd(), 'apps', 'web'),
-              stdio: 'inherit',
-              env: { ...process.env, FORCE_COLOR: 'true' }
-            });
-
-            console.log(kleur.green('Web app deployment completed successfully!'));
-          } catch (deployError) {
-            console.error(kleur.red('Web app deployment failed'));
-            console.error(deployError);
-            process.exit(1);
-          }
+          await deployWebApp(spinner);
         }
         break;
     }

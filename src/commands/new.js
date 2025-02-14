@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { intro, outro, text, password, isCancel } from '@clack/prompts';
 import fetch from 'node-fetch';
 import { execSync } from 'child_process';
+import { sanitizeProjectName } from '../utils/common.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -338,13 +339,6 @@ async function getPocketBaseCredentials() {
   }
 }
 
-function sanitizeProjectName(name) {
-  // Replace dots with -dot- and any other invalid characters with hyphens
-  return name.toLowerCase()
-    .replace(/\./g, '-dot-')
-    .replace(/[^a-z0-9-]/g, '-');
-}
-
 async function createProjectStructure(projectPath, name, options, pbCreds) {
   const spinner = ora('Creating project structure...').start();
   // Get the sanitized name for Docker and fly.io compatibility
@@ -363,6 +357,7 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
       let content = await fs.readFile(path.join(TEMPLATES_DIR, file), 'utf-8');
       // Use sanitized name for all files to match Docker's behavior
       content = content.replace(/{{name}}/g, projectName);
+      content = content.replace(/{{sanitizedName}}/g, projectName);
       // Write to files using original path with dots
       await fs.writeFile(path.join(projectPath, file), content);
     }
@@ -484,7 +479,7 @@ async function getAllDependencyVersions() {
 
 async function getLatestAstroVersion() {
   const version = await getLatestPackageVersion('astro');
-  return version || '4.2.1';
+  return version || '5.2.3';
 }
 
 async function getLatestPocketBaseVersion() {
