@@ -27,6 +27,7 @@ async function main() {
     .addHelpText('after', `\n${kleur.bold().yellow('Links:')}
   ${kleur.cyan('NPM:    ')}${kleur.blue('https://www.npmjs.com/package/@bitbons.ai/bit')}
   ${kleur.cyan('GitHub: ')}${kleur.blue('https://github.com/bitbons-ai/bit')}
+  ${kleur.cyan('Website: ')}${kleur.blue('https://bitbons.ai/')}
 `)
     .configureHelp({
       commandUsage: () => kleur.yellow('bit [options] [command]'),

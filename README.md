@@ -1,7 +1,6 @@
 # ∴ bit → your stack sidekick
 ![Version](https://img.shields.io/github/package-json/v/bitbons-ai/bit?label=version) ![NPM](https://img.shields.io/npm/v/@bitbons.ai/bit) ![Issues](https://img.shields.io/github/issues/bitbons-ai/bit) ![Last Commit](https://img.shields.io/github/last-commit/bitbons-ai/bit) 
 
-
 **Zero to Full-Stack in Seconds!** Create production-ready applications with a single command.
 
 ![Creating a project with bit](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-demo.gif)
@@ -28,12 +27,11 @@ Bit sets you up with a modern, battle-tested stack:
 
    ```bash
    bit new my-awesome-project
-   cd my-awesome-project
    ```
 
-3. Choose your style:
+3. Start to see logs coming in:
    ```bash
-   bit start # Press Ctrl+C to detach and keep services running
+   bit logs # bit is already running both containers for you
    ```
 
 **That's it!** Visit your creation at:
@@ -53,8 +51,8 @@ Bit sets you up with a modern, battle-tested stack:
 | `bit start`           | Start development environment   |
 | `bit stop`            | Stop all services              |
 | `bit logs`            | View containers logs              |
-| `bit down`            | Delete all containers and volumes    |
 | `bit deploy [target]` | Deploy to production           |
+| `bit down`            | Delete all containers and volumes    |
 
 ### Ready for the World?
 
@@ -101,9 +99,9 @@ Create `~/.bit.conf` to use one email/password for PB's superuser (and to fastra
 
 ### 🚢 Deploy Like a Pro
 
-We've partnered with [fly.io](https://fly.io) for smooth deployments:
+For now, you can deploy in [fly.io](https://fly.io) automagically:
 
-1. Get the tools:
+1. Get the fly.io CLI:
 
    ```bash
    curl -L https://fly.io/install.sh | sh
