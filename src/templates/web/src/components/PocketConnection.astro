@@ -1,0 +1,55 @@
+---
+import { createClient, getServerHealth } from '@lib/pocketbase';
+
+let connectionStatus = 'Connecting...';
+let connectionColor = 'blue';
+
+try {
+  const health = await getServerHealth();
+  
+  if (health) {
+    connectionStatus = `HTTP ${health.code} ∴ <b class="green">Successfully</b> connected to PocketBase!`;
+    connectionColor = 'green';
+  } else {
+    throw new Error('Could not get server health');
+  }
+} catch (error) {
+  connectionStatus = `<b class="red">Failed</b> to connect to PocketBase: ${error.message}`;
+  connectionColor = 'red';
+}
+---
+
+<div class={`callout ${connectionColor}`}>
+  <p set:html={connectionStatus}></p>
+</div>
+
+<style>
+  .callout {
+    background-color: var(--callout-background);
+    border: 1px solid;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin: 1rem 0;
+  }
+  
+  .callout.blue {
+    border-color: var(--blue);
+  }
+  
+  .callout.green {
+    border-color: var(--green);
+  }
+  
+  .callout.red {
+    border-color: var(--red);
+  }
+  
+  .green {
+    color: var(--green);
+  }
+  
+  .red {
+    color: var(--red);
+  }
+</style>

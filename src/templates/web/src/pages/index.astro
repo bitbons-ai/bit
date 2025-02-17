@@ -1,21 +1,9 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import PocketBase from 'pocketbase';
+import PocketConnection from '@components/PocketConnection.astro';
 
 const title = `Welcome to {{name}}`;
 
-let connectionStatus = 'Connecting...';
-let connectionColor = 'blue';
-
-try {
-  const pb = new PocketBase(import.meta.env.POCKETBASE_URL || 'https://{{name}}-pb.fly.dev');
-  await pb.health.check();
-  connectionStatus = `<b class="green">Successfully</b> connected to PocketBase!`;
-  connectionColor = 'green';
-} catch (error) {
-  connectionStatus = `<b class="red">Failed</b> to connect to PocketBase: ${error.message}`;
-  connectionColor = 'red';
-}
 ---
 
 <Layout title={title}>
@@ -56,108 +44,107 @@ try {
         <li>Style your app in <code>{{name}}/src/css</code></li>
         <li>Access PocketBase Admin UI at <a href="http://localhost:8090/_/">http://localhost:8090/_/</a></li>
       </ul>
-      <div class={`callout ${connectionColor}`}>
-        <p set:html={connectionStatus}></p>
-      </div>
+
+      <PocketConnection />
+
+      <style>
+        :root {
+            --background: #16161e;
+            --surface: #1a1b26;
+            --text: #c0caf5;
+            --callout-background: #1e1e1e;
+            --blue: #89b4fa;
+            --green: #a6e3a1;
+            --red: #f38ba8;
+            --accent: #89b4fa;
+            --primary: #f5f5f5;
+            --secondary: #e5e5e5;
+        }
+        .callout.blue {
+            border-color: var(--blue);
+        }
+        .callout.green {
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .callout.red {
+            border-color: var(--red);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100dvh;
+            scroll-behavior: smooth;
+        }
+
+        main {
+            margin: auto;
+            padding: 1rem;
+            width: 800px;
+            max-width: calc(100% - 2rem);
+            font-size: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 1em;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--secondary);
+        }
+
+        pre {
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--surface);
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+
+        code {
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-family: var(--font-mono);
+            background: var(--surface);
+        }
+
+        ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .callout {
+            background-color: var(--callout-background);
+            border: 1px solid;
+            padding: 0rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+      </style>
     </main>
   </body>
 </Layout>
-
-<style>
-  :root {
-      --background: #16161e;
-      --surface: #1a1b26;
-      --text: #c0caf5;
-      --callout-background: #1e1e1e;
-      --blue: #89b4fa;
-      --green: #a6e3a1;
-      --red: #f38ba8;
-      --accent: #89b4fa;
-      --primary: #f5f5f5;
-      --secondary: #e5e5e5;
-  }
-  .callout.blue {
-      border-color: var(--blue);
-  }
-  .callout.green {
-      border-color: var(--green);
-      color: var(--green);
-  }
-  .callout.red {
-      border-color: var(--red);
-  }
-
-  body {
-      background-color: var(--background);
-      color: var(--text);
-      min-height: 100dvh;
-      scroll-behavior: smooth;
-  }
-
-  main {
-      margin: auto;
-      padding: 1rem;
-      width: 800px;
-      max-width: calc(100% - 2rem);
-      font-size: 20px;
-      line-height: 1.6;
-  }
-
-  h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 1em;
-      color: var(--primary);
-  }
-
-  h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 2rem 0 1rem;
-      color: var(--secondary);
-  }
-
-  pre {
-      padding: 1rem;
-      border-radius: 8px;
-      background: var(--surface);
-      font-size: 0.85em;
-      overflow-x: auto;
-  }
-
-  code {
-      padding: 0.2em 0.4em;
-      border-radius: 3px;
-      font-size: 0.85em;
-      font-family: var(--font-mono);
-      background: var(--surface);
-  }
-
-  ul {
-      margin: 1rem 0;
-      padding-left: 1.5rem;
-  }
-
-  li {
-      margin: 0.5rem 0;
-  }
-
-  a {
-      color: var(--accent);
-      text-decoration: none;
-  }
-
-  a:hover {
-      text-decoration: underline;
-  }
-
-  .callout {
-      background-color: var(--callout-background);
-      border: 1px solid;
-      padding: 0rem;
-      border-radius: 8px;
-      text-align: center;
-      margin-bottom: 1rem;
-  }
-</style>
