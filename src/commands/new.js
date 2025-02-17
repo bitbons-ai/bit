@@ -411,6 +411,22 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
       { name, sanitizedName: projectName, ...versions }
     );
 
+    console.log('Installing web dependencies...');
+    // Install dependencies using bun
+    try {
+      execSync('bun install', {
+        cwd: webPath,
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          FORCE_COLOR: 'true'
+        }
+      });
+    } catch (error) {
+      console.warn(kleur.yellow('Warning: Failed to install web dependencies locally. They will be installed in the container.'));
+      console.warn(kleur.yellow('Error: ' + error.message));
+    }
+
     console.log('Setting up PocketBase...');
     // Create and copy PocketBase files
     const pbPath = path.join(projectPath, 'apps/pb');
@@ -601,7 +617,7 @@ export function newCommand(program) {
           // Commands section - ordered by typical workflow
           console.log(kleur.white('\nCommands:'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit logs') + kleur.white(' - Watch development logs'));
-          console.log(kleur.white('    Press ') + kleur.yellow().bold('Ctrl+C') + kleur.white(' when done, services will keep running'));
+          console.log(kleur.gray('    Press ') + kleur.yellow().bold('Ctrl+C') + kleur.gray(' when done, services will keep running'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit deploy') + kleur.white(' - Launch your site on fly.io'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit stop') + kleur.white(' - Shut down the development environment'));
 
