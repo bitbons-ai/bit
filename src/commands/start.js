@@ -5,10 +5,9 @@ import ora from 'ora';
 import { execSync } from 'child_process';
 import { ensureProjectRoot } from '../utils/common.js';
 
-async function restartWebContainer() {
+async function restartWebContainer(projectRoot) {
   try {
-    // Ensure we're in the project root
-    if (!ensureProjectRoot()) {
+    if (!projectRoot) {
       process.exit(1);
     }
 
@@ -26,18 +25,17 @@ async function restartWebContainer() {
   }
 }
 
-async function startProject() {
+async function startProject(projectRoot) {
   const spinner = ora('Starting development environment...').start();
 
   try {
-    // Ensure we're in the project root
-    if (!ensureProjectRoot()) {
+    if (!projectRoot) {
       spinner.fail(kleur.red('Not in a bit project'));
       process.exit(1);
     }
 
-    // Check if docker-compose.yml exists (redundant now but keeping for extra safety)
-    const composePath = path.join(process.cwd(), 'docker-compose.yml');
+    // Check if docker-compose.yml exists
+    const composePath = path.join(projectRoot, 'docker-compose.yml');
     await fs.access(composePath);
 
     // Build and start services
@@ -72,11 +70,17 @@ export function startCommand(program) {
   program
     .command('start')
     .description('Start the development environment')
-    .action(startProject);
+    .action((options) => {
+      const projectRoot = ensureProjectRoot();
+      startProject(projectRoot);
+    });
 
   // Add restart command
   program
     .command('restart')
     .description('Restart the web container (useful after installing new packages)')
-    .action(restartWebContainer);
+    .action((options) => {
+      const projectRoot = ensureProjectRoot();
+      restartWebContainer(projectRoot);
+    });
 }

@@ -33,7 +33,7 @@ export function checkCliToolInstalled(command, args = ['version']) {
 /**
  * Finds the project root directory by looking for docker-compose.yml
  * and changes the current working directory to it
- * @returns {boolean} - Whether the project root was found and changed to
+ * @returns {string|null} - The project root path if found, null otherwise
  */
 export function ensureProjectRoot() {
   let currentDir = process.cwd();
@@ -45,7 +45,7 @@ export function ensureProjectRoot() {
         process.chdir(currentDir);
         console.log(kleur.gray(`Changed directory to project root: ${currentDir}`));
       }
-      return true;
+      return currentDir;
     }
     const parentDir = path.dirname(currentDir);
     if (parentDir === currentDir) break;
@@ -53,5 +53,5 @@ export function ensureProjectRoot() {
   }
   
   console.error(kleur.red('Error: Not in a bit project (docker-compose.yml not found in parent directories)'));
-  return false;
+  return null;
 }

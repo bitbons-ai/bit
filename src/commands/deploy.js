@@ -32,8 +32,8 @@ async function getAppNameFromConfig(configPath) {
   }
 }
 
-async function deployWebApp(spinner) {
-  const webConfigPath = path.join(process.cwd(), 'apps', 'web', 'fly.toml');
+async function deployWebApp(projectRoot, spinner) {
+  const webConfigPath = path.join(projectRoot, 'apps', 'web', 'fly.toml');
   const webAppName = await getAppNameFromConfig(webConfigPath);
   
   if (!webAppName) {
@@ -49,7 +49,7 @@ async function deployWebApp(spinner) {
   if (!webAppExists) {
     console.log(kleur.yellow('Web app not found. Launching...'));
     await execa('fly', ['launch', '--name', webAppName, '--copy-config', '--no-deploy', '--yes'], {
-      cwd: path.join(process.cwd(), 'apps', 'web'),
+      cwd: path.join(projectRoot, 'apps', 'web'),
       stdio: 'inherit',
       env: { ...process.env, FORCE_COLOR: 'true' }
     });
@@ -58,14 +58,14 @@ async function deployWebApp(spinner) {
   // Deploy web app
   console.log(kleur.cyan('\nDeploying web app...\n'));
   await execa('fly', ['deploy'], {
-    cwd: path.join(process.cwd(), 'apps', 'web'),
+    cwd: path.join(projectRoot, 'apps', 'web'),
     stdio: 'inherit',
     env: { ...process.env, FORCE_COLOR: 'true' }
   });
 }
 
-async function deployPocketBase(spinner) {
-  const pbConfigPath = path.join(process.cwd(), 'apps', 'pb', 'fly.toml');
+async function deployPocketBase(projectRoot, spinner) {
+  const pbConfigPath = path.join(projectRoot, 'apps', 'pb', 'fly.toml');
   const pbAppName = await getAppNameFromConfig(pbConfigPath);
   
   if (!pbAppName) {
@@ -81,7 +81,7 @@ async function deployPocketBase(spinner) {
   if (!pbAppExists) {
     console.log(kleur.yellow('PocketBase app not found. Launching...'));
     await execa('fly', ['launch', '--name', pbAppName, '--copy-config', '--no-deploy', '--yes'], {
-      cwd: path.join(process.cwd(), 'apps', 'pb'),
+      cwd: path.join(projectRoot, 'apps', 'pb'),
       stdio: 'inherit',
       env: { ...process.env, FORCE_COLOR: 'true' }
     });
@@ -89,7 +89,7 @@ async function deployPocketBase(spinner) {
     // Create volume for PocketBase data
     console.log(kleur.cyan('\nCreating volume for PocketBase data...\n'));
     await execa('fly', ['volumes', 'create', 'pb_data', '--size', '1'], {
-      cwd: path.join(process.cwd(), 'apps', 'pb'),
+      cwd: path.join(projectRoot, 'apps', 'pb'),
       stdio: 'inherit',
       env: { ...process.env, FORCE_COLOR: 'true' }
     });
@@ -98,18 +98,17 @@ async function deployPocketBase(spinner) {
   // Deploy PocketBase app
   console.log(kleur.cyan('\nDeploying PocketBase app...\n'));
   await execa('fly', ['deploy'], {
-    cwd: path.join(process.cwd(), 'apps', 'pb'),
+    cwd: path.join(projectRoot, 'apps', 'pb'),
     stdio: 'inherit',
     env: { ...process.env, FORCE_COLOR: 'true' }
   });
 }
 
-async function deployProject(target) {
+async function deployProject(projectRoot, target) {
   const spinner = ora('Preparing deployment...').start();
 
   try {
-    // Ensure we're in the project root
-    if (!ensureProjectRoot()) {
+    if (!projectRoot) {
       spinner.fail(kleur.red('Not in a bit project'));
       process.exit(1);
     }
@@ -132,13 +131,13 @@ async function deployProject(target) {
 
     // Deploy based on target
     if (target === 'web') {
-      await deployWebApp(spinner);
+      await deployWebApp(projectRoot, spinner);
     } else if (target === 'pb') {
-      await deployPocketBase(spinner);
+      await deployPocketBase(projectRoot, spinner);
     } else {
       // Deploy both
-      await deployPocketBase(spinner);
-      await deployWebApp(spinner);
+      await deployPocketBase(projectRoot, spinner);
+      await deployWebApp(projectRoot, spinner);
     }
 
     spinner.succeed(kleur.green('Deployment completed successfully!'));
@@ -154,5 +153,8 @@ export function deployCommand(program) {
     .command('deploy')
     .description('Deploy the project to Fly.io')
     .argument('[target]', 'Target to deploy (web, pb, or all)', 'all')
-    .action(deployProject);
+    .action((target, options) => {
+      const projectRoot = ensureProjectRoot();
+      deployProject(projectRoot, target);
+    });
 }

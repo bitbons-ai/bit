@@ -620,6 +620,7 @@ export function newCommand(program) {
           console.log(kleur.gray('    Press ') + kleur.yellow().bold('Ctrl+C') + kleur.gray(' when done, services will keep running'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit deploy') + kleur.white(' - Launch your site on fly.io'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit stop') + kleur.white(' - Shut down the development environment'));
+          console.log(kleur.white('  • ') + kleur.cyan().bold('bit down') + kleur.white(' - Destroy both containers'));
 
           // Only open browser if services are ready
           if (servicesReady) {

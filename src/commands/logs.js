@@ -2,10 +2,9 @@ import { execSync } from 'child_process';
 import kleur from 'kleur';
 import { ensureProjectRoot } from '../utils/common.js';
 
-async function logsProject() {
+async function logsProject(projectRoot) {
   try {
     // Ensure we're in the project root
-    const projectRoot = ensureProjectRoot();
     if (!projectRoot) {
       process.exit(1);
     }
@@ -28,5 +27,8 @@ export function logsCommand(program) {
   program
     .command('logs')
     .description('View development logs')
-    .action(logsProject);
+    .action((options) => {
+      const projectRoot = ensureProjectRoot();
+      logsProject(projectRoot);
+    });
 }
