@@ -12,6 +12,8 @@ services:
     environment:
       - POCKETBASE_URL=http://pb:8090
       - NODE_ENV=development
+    command: >
+      sh -c "bun install && bun run dev"
     depends_on:
       pb:
         condition: service_healthy
