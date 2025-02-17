@@ -3,9 +3,15 @@ import path from 'path';
 import kleur from 'kleur';
 import ora from 'ora';
 import { execSync } from 'child_process';
+import { ensureProjectRoot } from '../utils/common.js';
 
 async function restartWebContainer() {
   try {
+    // Ensure we're in the project root
+    if (!ensureProjectRoot()) {
+      process.exit(1);
+    }
+
     console.log(kleur.cyan('\nRestarting web container...\n'));
     execSync('docker compose restart web', {
       stdio: 'inherit',
@@ -24,7 +30,13 @@ async function startProject() {
   const spinner = ora('Starting development environment...').start();
 
   try {
-    // Check if docker-compose.yml exists
+    // Ensure we're in the project root
+    if (!ensureProjectRoot()) {
+      spinner.fail(kleur.red('Not in a bit project'));
+      process.exit(1);
+    }
+
+    // Check if docker-compose.yml exists (redundant now but keeping for extra safety)
     const composePath = path.join(process.cwd(), 'docker-compose.yml');
     await fs.access(composePath);
 

@@ -1,10 +1,18 @@
 import { execSync } from 'child_process';
 import kleur from 'kleur';
+import { ensureProjectRoot } from '../utils/common.js';
 
 async function logsProject() {
   try {
+    // Ensure we're in the project root
+    const projectRoot = ensureProjectRoot();
+    if (!projectRoot) {
+      process.exit(1);
+    }
+
     execSync('docker compose logs -f', { 
       stdio: 'inherit',
+      cwd: projectRoot,
       env: {
         ...process.env,
         FORCE_COLOR: 'true'
@@ -19,6 +27,6 @@ async function logsProject() {
 export function logsCommand(program) {
   program
     .command('logs')
-    .description('Show logs from all services')
+    .description('View development logs')
     .action(logsProject);
 }

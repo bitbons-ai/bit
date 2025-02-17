@@ -1,4 +1,7 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import kleur from 'kleur';
 
 /**
  * Sanitizes a project name to be compatible with various services
@@ -25,4 +28,30 @@ export function checkCliToolInstalled(command, args = ['version']) {
   } catch {
     return false;
   }
+}
+
+/**
+ * Finds the project root directory by looking for docker-compose.yml
+ * and changes the current working directory to it
+ * @returns {boolean} - Whether the project root was found and changed to
+ */
+export function ensureProjectRoot() {
+  let currentDir = process.cwd();
+  const root = process.platform === 'win32' ? currentDir.split(path.sep)[0] : '/';
+  
+  while (currentDir !== root) {
+    if (fs.existsSync(path.join(currentDir, 'docker-compose.yml'))) {
+      if (currentDir !== process.cwd()) {
+        process.chdir(currentDir);
+        console.log(kleur.gray(`Changed directory to project root: ${currentDir}`));
+      }
+      return true;
+    }
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) break;
+    currentDir = parentDir;
+  }
+  
+  console.error(kleur.red('Error: Not in a bit project (docker-compose.yml not found in parent directories)'));
+  return false;
 }
