@@ -21,20 +21,23 @@ const title = `Welcome to {{name}}`;
       <h2>Project Structure</h2>
       <pre>
         /{{name}}
+        ├── .env.development     # Development-only variables (not committed)
         ├── apps/
-        │   ├── web/                # Astro application
+        │   ├── web/            # Astro frontend application
         │   │   ├── src/
-        │   │   │   ├── components/ # UI components
-        │   │   │   ├── css/        # Global styles
-        │   │   │   ├── layouts/    # Page layouts
-        │   │   │   ├── lib/        # Shared utilities
-        │   │   │   └── pages/      # Application routes
-        │   │   └── public/         # Static assets
-        │   └── pb/                 # PocketBase instance
-        │       ├── pb_data/        # Database files
-        │       └── pb_migrations/  # Database migrations
-        ├── package.json
-        └── docker-compose.yml
+        │   │   │   ├── components/ # Reusable UI components
+        │   │   │   ├── layouts/    # Page layouts and templates
+        │   │   │   ├── pages/      # Application routes
+        │   │   │   ├── css/        # Global styles and themes
+        │   │   │   └── lib/        # Shared utilities and helpers
+        │   │   ├── public/         # Static assets
+        │   │   ├── .env           # Public environment variables
+        │   │   └── fly.toml       # Fly.io deployment config
+        │   └── pb/               # PocketBase backend
+        │       ├── pb_data/      # Database files (gitignored)
+        │       └── fly.toml      # Fly.io deployment config
+        ├── docker-compose.yml   # Development environment
+        └── README.md           # This file
       </pre>
 
       <h2>Next Steps</h2>
