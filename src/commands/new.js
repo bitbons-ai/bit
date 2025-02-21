@@ -431,10 +431,23 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
     // Create and copy PocketBase files
     const pbPath = path.join(projectPath, 'apps/pb');
     await fs.mkdir(pbPath, { recursive: true });
+
+    // Ensure we have a valid PocketBase version
+    if (!options.pb) {
+      console.error(kleur.red('Error: Could not determine PocketBase version'));
+      process.exit(1);
+    }
+
+    console.log(kleur.gray(`Using PocketBase version: ${options.pb}`));
+    
     await copyDir(
       path.join(TEMPLATES_DIR, 'pb'),
       pbPath,
-      { name, sanitizedName: projectName, pbVersion: options.pb }
+      { 
+        name, 
+        sanitizedName: projectName, 
+        pbVersion: options.pb  // This should now be properly set
+      }
     );
 
     // Update .env.development with provided credentials and development settings
@@ -514,7 +527,7 @@ async function getLatestPocketBaseVersion() {
   }
 }
 
-async function checkServiceReady(url, maxAttempts = 60) {
+async function checkServiceReady(url, maxAttempts = 30) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const response = await fetch(url);
@@ -522,23 +535,35 @@ async function checkServiceReady(url, maxAttempts = 60) {
     } catch (error) {
       // Service not ready yet
     }
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between attempts
+    await new Promise(resolve => setTimeout(resolve, 500)); // Check every 500ms instead of 1s
   }
   return false;
 }
 
 async function waitForServices(spinner) {
   // Check both services in parallel
-  const [pbReady, astroReady] = await Promise.all([
-    checkServiceReady('http://localhost:8090/api/health'),
-    checkServiceReady('http://localhost:4321')
-  ]);
+  let pbReady = false;
+  let astroReady = false;
+
+  // Maximum time to wait for each service
+  const timeout = setTimeout(() => {
+    spinner.warn(kleur.yellow('Services are taking longer than expected...'));
+  }, 10000); // Show warning after 10 seconds
+
+  try {
+    [pbReady, astroReady] = await Promise.all([
+      checkServiceReady('http://localhost:8090/api/health'),
+      checkServiceReady('http://localhost:4321') // Just check root, simpler
+    ]);
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!pbReady) {
-    spinner.warn(kleur.yellow('PocketBase is taking longer than expected to start...'));
+    spinner.warn(kleur.yellow('PocketBase is not responding...'));
   }
   if (!astroReady) {
-    spinner.warn(kleur.yellow('Astro is taking longer than expected to start...'));
+    spinner.warn(kleur.yellow('Astro is not responding...'));
   }
 
   return pbReady && astroReady;
@@ -548,11 +573,15 @@ export function newCommand(program) {
   program
     .command('new <project-name>')
     .description('Create a new project')
-    .option('--pb <version>', 'PocketBase version', async () => await getLatestPocketBaseVersion())
-    .option('--astro <version>', 'Astro version', async () => await getLatestAstroVersion())
+    .option('--pb <version>', 'PocketBase version')
+    .option('--astro <version>', 'Astro version')
     .action(async (name, options) => {
       try {
         intro(kleur.cyan('∴ Creating your new project...'));
+
+        // Get PocketBase version first
+        options.pb = options.pb || await getLatestPocketBaseVersion();
+        options.astro = options.astro || await getLatestAstroVersion();
 
         // Verify Docker environment before proceeding
         await verifyDockerEnvironment();
@@ -584,34 +613,27 @@ export function newCommand(program) {
 
         outro(kleur.green('\n✨ Project created successfully!'));
 
-        // Start services in detached mode
+        // Start services
         const spinner = ora('Starting services...').start();
-        const { execa } = await import('execa');
         try {
-          const subprocess = execa('bit', ['start'], {
-            stdio: 'ignore',  // Don't show logs
-            detached: true,   // Run in background
-            env: { ...process.env, FORCE_COLOR: 'true' },
-            cwd: projectPath  // Run in the project directory
+          // Start services directly using docker compose
+          execSync(`cd "${projectPath}" && docker compose up -d --build`, {
+            stdio: 'inherit',
+            env: { ...process.env, FORCE_COLOR: 'true' }
           });
 
-          // Unref the child process to allow Node.js to exit
-          subprocess.unref();
+          // Countdown animation
+          const countdown = ora('').start();
+          for (let i = 5; i > 0; i--) {
+            countdown.text = kleur.cyan(`Launching in ${i}...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          countdown.succeed(kleur.green('🚀 Liftoff!'));
 
-          // Wait briefly for services to start initializing
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Check if services are ready
-          spinner.text = 'Waiting for services to be ready...';
+          // Check services in background
           const servicesReady = await waitForServices(spinner);
 
-          if (servicesReady) {
-            spinner.succeed(kleur.green('🚀 Services started successfully'));
-          } else {
-            spinner.warn(kleur.yellow('Services started but might not be fully ready yet'));
-          }
-
-          // Show service information in a more organized way
+          // Show service information
           console.log(kleur.green().bold('\nServices:'));
           console.log(kleur.green('  • Web App'));
           console.log(kleur.white('    ') + kleur.cyan().underline('http://localhost:4321'));
@@ -619,7 +641,7 @@ export function newCommand(program) {
           console.log(kleur.white('    ') + kleur.cyan().underline('http://localhost:8090'));
           console.log(kleur.white('    Admin: ') + kleur.cyan().underline('http://localhost:8090/_/'));
 
-          // Commands section - ordered by typical workflow
+          // Commands section
           console.log(kleur.white('\nCommands:'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit logs') + kleur.white(' - Watch development logs'));
           console.log(kleur.gray('    Press ') + kleur.yellow().bold('Ctrl+C') + kleur.gray(' when done, services will keep running'));
@@ -627,29 +649,22 @@ export function newCommand(program) {
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit stop') + kleur.white(' - Shut down the development environment'));
           console.log(kleur.white('  • ') + kleur.cyan().bold('bit down') + kleur.white(' - Destroy both containers'));
 
+          // Next steps
+          console.log(kleur.green().bold('\n👉 Next steps:'));
+          console.log(kleur.white('  cd ') + kleur.cyan(name));
+          console.log(kleur.white('  bit logs') + kleur.gray(' - to see development output'));
+
           // Only open browser if services are ready
           if (servicesReady) {
-            // Open web app in browser
             try {
               await execa('open', ['http://localhost:4321']);
             } catch (error) {
               // Silently handle error - we already showed the URLs above
             }
           }
-          // Change to the project directory by starting a new shell
-          try {
-            await execa('exec', ['$SHELL'], {
-              shell: true,
-              stdio: 'inherit',
-              cwd: projectPath
-            });
-          } catch (error) {
-            // If shell fails, just exit normally
-            process.exit(0);
-          }
         } catch (error) {
           spinner.fail(kleur.red('Failed to start services'));
-          console.error(error.message);
+          console.error(kleur.yellow('Try running `docker compose up` to see detailed error messages'));
           process.exit(1);
         }
       } catch (error) {
