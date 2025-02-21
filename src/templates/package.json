@@ -1,16 +1,4 @@
 {
   "name": "{{name}}",
-  "private": true,
-  "scripts": {
-    "dev": "docker compose up",
-    "build": "docker compose build",
-    "start": "docker compose start",
-    "stop": "docker compose stop",
-    "down": "docker compose down",
-    "clean": "docker compose down -v",
-    "deploy": "bun run deploy:web && bun run deploy:pb",
-    "deploy:web": "cd apps/web && fly deploy",
-    "deploy:web:fresh": "cd apps/web && rm -rf node_modules && bun install && bun run build && fly deploy",
-    "deploy:pb": "cd apps/pb && fly deploy"
-  }
+  "private": true
 }

@@ -12,6 +12,7 @@ import { stopCommand } from './commands/stop.js';
 import { deployCommand } from './commands/deploy.js';
 import { logsCommand } from './commands/logs.js';
 import { downCommand } from './commands/down.js';
+import { restartCommand } from './commands/restart.js';
 
 const program = new Command();
 
@@ -42,6 +43,7 @@ async function main() {
   newCommand(program);
   startCommand(program);
   stopCommand(program);
+  restartCommand(program);
   deployCommand(program);
   logsCommand(program);
   downCommand(program);

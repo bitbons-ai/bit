@@ -5,7 +5,12 @@
 To start the development server:
 
 ```bash
-bun dev
+# Start both web and PocketBase
+bit start
+
+# If you need to restart (e.g., after dependency changes):
+bit restart web          # Rebuild and restart web
+bit restart --skip-build # Restart without rebuilding
 ```
 
 ## Deployment
@@ -13,44 +18,42 @@ bun dev
 Deploy options:
 
 ```bash
-# Deploy both web and PocketBase
+# Deploy both web and PocketBase (in parallel)
 bit deploy
 
 # Deploy only web application
 bit deploy web
 
+# Deploy and monitor health
+bit deploy --watch
+
 # Deploy only PocketBase
 bit deploy pb
 ```
 
-## Project Structure
-
-- `src/pages/`: Application routes
-- `src/components/`: Reusable UI components
-- `src/layouts/`: Page layout components
-- `public/`: Static assets
-
 ## Environment Variables
 
-Configure your environment variables in `.env` file:
+- `.env`: Public environment variables
+- `.env.development`: Development-only variables (not committed)
 
-- `POCKETBASE_URL`: URL of your PocketBase instance
-- `NODE_ENV`: Set to `production` for production builds
+## Project Structure
 
-## Building for Production
-
-```bash
-bun run build
+```
+src/
+├── components/ # Reusable UI components
+├── layouts/    # Page layout components
+├── pages/      # Application routes
+└── css/        # Global styles
+public/         # Static assets
 ```
 
-## Fly.io Deployment
+## Commands Reference
 
-The application is configured to deploy on Fly.io with:
-- Automatic HTTPS
-- Minimal 1 machine running
-- 1GB memory
-
-## Troubleshooting
-
-- Ensure Bun is installed: `curl -fsSL https://bun.sh/install | bash`
-- Check PocketBase connection in the admin dashboard
+| Command                    | Description                          |
+|---------------------------|--------------------------------------|
+| `bit start`               | Start development environment        |
+| `bit stop`                | Stop all services                    |
+| `bit restart [target]`    | Restart and rebuild services         |
+| `bit restart --skip-build`| Restart without rebuilding           |
+| `bit deploy`              | Deploy all services                  |
+| `bit deploy --watch`      | Deploy and monitor health           |

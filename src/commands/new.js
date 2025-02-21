@@ -437,9 +437,14 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
       { name, sanitizedName: projectName, pbVersion: options.pb }
     );
 
-    // Update docker-compose environment with provided credentials
-    const envContent = `SUPERUSER_EMAIL=${pbCreds.email}\nSUPERUSER_PASSWORD=${pbCreds.pass}`;
-    await fs.writeFile(path.join(projectPath, '.env'), envContent);
+    // Update .env.development with provided credentials and development settings
+    const envContent = `# Development environment configuration
+POCKETBASE_URL=http://pb:8090
+
+# PocketBase superuser credentials (development only - not committed)
+SUPERUSER_EMAIL=${pbCreds.email}
+SUPERUSER_PASSWORD=${pbCreds.pass}`;
+    await fs.writeFile(path.join(projectPath, '.env.development'), envContent);
 
     console.log('Creating additional directories...');
     // Create essential directories (if they don't exist)
