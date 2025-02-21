@@ -51,7 +51,7 @@
 │       ├── pb_data/      # Database files (gitignored)
 │       └── fly.toml      # Fly.io deployment config
 ├── docker-compose.yml   # Development environment
-└── README.md           # This file
+└── README.md
 ```
 
 ## 🛠 Development Commands
