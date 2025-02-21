@@ -10,6 +10,7 @@ import { intro, outro, text, password, isCancel } from '@clack/prompts';
 import fetch from 'node-fetch';
 import { execSync } from 'child_process';
 import { sanitizeProjectName } from '../utils/common.js';
+import { execa } from 'execa';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -572,7 +573,7 @@ async function waitForServices(spinner) {
 export function newCommand(program) {
   program
     .command('new <project-name>')
-    .description('Create a new project')
+    .description('Create a new project with Astro and PocketBase')
     .option('--pb <version>', 'PocketBase version')
     .option('--astro <version>', 'Astro version')
     .action(async (name, options) => {
@@ -621,19 +622,23 @@ export function newCommand(program) {
             stdio: 'inherit',
             env: { ...process.env, FORCE_COLOR: 'true' }
           });
+          spinner.succeed('Services started successfully');
 
-          // Countdown animation
           const countdown = ora('').start();
-          for (let i = 5; i > 0; i--) {
+          for (let i = 3; i > 0; i--) {
             countdown.text = kleur.cyan(`Launching in ${i}...`);
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
           countdown.succeed(kleur.green('🚀 Liftoff!'));
+          await new Promise(resolve => setTimeout(resolve, 2000));
 
-          // Check services in background
-          const servicesReady = await waitForServices(spinner);
+          // Open browser first, then show service information
+          try {
+            await execa('open', ['http://localhost:4321']);
+          } catch (error) {
+            // Silently handle error - we'll show the URLs anyway
+          }
 
-          // Show service information
           console.log(kleur.green().bold('\nServices:'));
           console.log(kleur.green('  • Web App'));
           console.log(kleur.white('    ') + kleur.cyan().underline('http://localhost:4321'));
@@ -654,14 +659,6 @@ export function newCommand(program) {
           console.log(kleur.white('  cd ') + kleur.cyan(name));
           console.log(kleur.white('  bit logs') + kleur.gray(' - to see development output'));
 
-          // Only open browser if services are ready
-          if (servicesReady) {
-            try {
-              await execa('open', ['http://localhost:4321']);
-            } catch (error) {
-              // Silently handle error - we already showed the URLs above
-            }
-          }
         } catch (error) {
           spinner.fail(kleur.red('Failed to start services'));
           console.error(kleur.yellow('Try running `docker compose up` to see detailed error messages'));

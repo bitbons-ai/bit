@@ -28,18 +28,9 @@ async function main() {
     .addHelpText('after', `\n${kleur.bold().yellow('Links:')}
   ${kleur.cyan('NPM:    ')}${kleur.blue('https://www.npmjs.com/package/@bitbons.ai/bit')}
   ${kleur.cyan('GitHub: ')}${kleur.blue('https://github.com/bitbons-ai/bit')}
-  ${kleur.cyan('Website: ')}${kleur.blue('https://bitbons.ai/')}
-`)
-    .configureHelp({
-      commandUsage: () => kleur.yellow('bit [options] [command]'),
-      subcommandDescription: (cmd) => kleur.gray(cmd.description()),
-      optionDescription: (opt) => kleur.gray(opt.description),
-      commandDescription: (cmd) => kleur.gray(cmd.description()),
-      subcommandTerm: (cmd) => kleur.cyan(cmd.name() + cmd.usage()),
-      optionTerm: (opt) => kleur.cyan(opt.flags),
-    });
+  ${kleur.cyan('Website: ')}${kleur.blue('https://bitbons.ai/')}`);
 
-  // Register commands
+  // Register command handlers
   newCommand(program);
   startCommand(program);
   stopCommand(program);
@@ -48,7 +39,7 @@ async function main() {
   logsCommand(program);
   downCommand(program);
 
-  // Parse arguments
+  // Parse command line arguments
   await program.parseAsync(process.argv);
 
   // If no arguments provided, show help

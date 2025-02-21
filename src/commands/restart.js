@@ -89,7 +89,7 @@ async function restartProject(target, options) {
 export function restartCommand(program) {
   program
     .command('restart')
-    .description('Restart and rebuild project containers')
+    .description('Restart and rebuild project containers (web, pb, or all)')
     .argument('[target]', 'Target to restart (web, pb, or all)', 'all')
     .option('--skip-build', 'Skip rebuilding the container', false)
     .action(async (target, options) => {

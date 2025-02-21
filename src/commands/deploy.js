@@ -334,7 +334,7 @@ async function deployProject(target) {
 export function deployCommand(program) {
   program
     .command('deploy')
-    .description('Deploy the project to Fly.io')
+    .description('Deploy the project to Fly.io (web, pb, or all)')
     .argument('[target]', 'Target to deploy (web, pb, or all)', 'all')
     .option('--watch', 'Wait and verify the deployment is healthy')
     .action(async (target, options) => {
