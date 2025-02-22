@@ -7,6 +7,10 @@
   - Parallel restart for 'all' target
 - **Health Check**: Added health check feature with `--watch` flag for deployments
 - **Parallel Deployment**: Added parallel deployment for 'all' target
+- **Domain Support**: Added support for domain names in project creation
+  - Allow using domains as project names (e.g., example.com)
+  - Automatic conversion to fly.io compatible names
+  - Consistent naming across Docker and deployment
 
 ## 🔧 Improvements
 - **PocketBase Credentials**: Moved PocketBase credentials to `.env.development` in root directory
@@ -15,6 +19,9 @@
   - Auto-set fly secrets from `.env.development` during first deploy
   - Added custom domain guidance
   - Made all deployments non-interactive
+  - Added --dry-run option for deployment simulation
+  - Improved secret management from fly.secrets.example
+  - Added DNS and SSL certificate setup instructions
 - **Documentation**: Updated documentation:
   - Revised project structure in READMEs
   - Added new commands and options
