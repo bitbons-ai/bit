@@ -14,6 +14,8 @@ services:
       - NODE_ENV=development
     command: >
       sh -c "bun install && bun run dev"
+    env_file:
+      - ./.env.development
     depends_on:
       pb:
         condition: service_healthy
@@ -27,10 +29,8 @@ services:
       - "8090:8090"
     volumes:
       - {{sanitizedName}}_pb_data:/pb/pb_data
-    environment:
-      - NODE_ENV=development
-      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL}
-      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
+    env_file:
+      - ./.env.development
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
       interval: 5s

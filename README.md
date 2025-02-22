@@ -45,37 +45,47 @@ Bit sets you up with a modern, battle-tested stack:
 
 ### During Development
 
-| Command                 | Description                     |
-|------------------------|---------------------------------|
-| `bit new <name>`       | Create a new project           |
-| `bit start`           | Start development environment   |
-| `bit stop`            | Stop all services              |
-| `bit logs`            | View containers logs              |
-| `bit deploy [target]` | Deploy to production           |
-| `bit down`            | Delete all containers and volumes    |
+| Command                    | Description                          |
+|---------------------------|--------------------------------------|
+| `bit new <n>`             | Create a new project                 |
+| `bit start`               | Start development environment        |
+| `bit stop`                | Stop all services                    |
+| `bit restart [target]`    | Restart and rebuild services         |
+| `bit logs`                | View containers logs                 |
+| `bit down`                | Delete all containers and volumes    |
+| `bit deploy [target]`     | Deploy to production                 |
 
 ### Ready for the World?
 
-| Command          | What it Does    |
-| ---------------- | --------------- |
-| `bit deploy`     | Ship everything |
-| `bit deploy web` | Ship frontend   |
-| `bit deploy pb`  | Ship backend    |
+| Command          | What it Does                                |
+| ---------------- | ------------------------------------------ |
+| `bit deploy`     | Ship everything (parallel deployment)       |
+| `bit deploy web` | Ship frontend                              |
+| `bit deploy pb`  | Ship backend                               |
 
 If your app doesn't exist in [fly.io](https://fly.io), it will `launch` first, then `deploy`.
+You can use `--watch` to verify deployment health.
+
+### Useful Options
+
+| Command                     | Description                          |
+|----------------------------|--------------------------------------|
+| `bit restart --skip-build` | Restart without rebuilding           |
+| `bit deploy --watch`       | Monitor deployment until healthy     |
 
 ## 📐 Project Blueprint
 
 ```
 my-project/
+├── .env.development    # Development-only variables (not committed)
 ├── apps/
-│   ├── web/          # Astro frontend
+│   ├── web/           # Astro frontend
 │   │   ├── src/
+│   │   ├── .env      # Public environment variables
 │   │   └── fly.toml  # Frontend deploy config
 │   └── pb/           # PocketBase backend
-│       ├── pb_data/
-│       ├── pb_migrations/
-│       └── fly.toml   # Backend deploy config
+│       ├── pb_data/  # Database and storage
+│       └── fly.toml  # Backend deploy config
 ├── docker-compose.yml # Development environment
 └── README.md
 ```

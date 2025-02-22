@@ -26,7 +26,7 @@ async function logsProject(projectRoot) {
 export function logsCommand(program) {
   program
     .command('logs')
-    .description('View development logs')
+    .description('View development logs (press Ctrl+C to exit)')
     .action((options) => {
       const projectRoot = ensureProjectRoot();
       logsProject(projectRoot);

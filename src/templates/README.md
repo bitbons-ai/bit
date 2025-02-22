@@ -16,9 +16,9 @@
    ```
 
 2. Set up your environment:
-   - Copy `.env.example` to `.env`
-   - Update the values in `.env` with your desired configuration
-   - (Optional) Set up PocketBase admin credentials in `~/.bit.conf` (see Configuration section)
+   - The `.env.development` file in the root contains development-specific variables
+   - Update the values if needed (PocketBase admin credentials, etc.)
+   - (Optional) Set up default PocketBase admin credentials in `~/.bit.conf`
 
 3. Start the development environment:
    ```bash
@@ -29,14 +29,15 @@
 4. Access your applications:
    - Frontend: [http://localhost:4321](http://localhost:4321)
    - PocketBase Admin: [http://localhost:8090/_/](http://localhost:8090/_/)
-   - Default admin credentials: Check your `.env` file or `~/.bit.conf`
+   - Default admin credentials are in `.env.development`
 
 ## 🏗 Project Structure
 
 ```text
 /
+├── .env.development     # Development-only variables (not committed)
 ├── apps/
-│   ├── web/                # Astro frontend application
+│   ├── web/            # Astro frontend application
 │   │   ├── src/
 │   │   │   ├── components/ # Reusable UI components
 │   │   │   ├── layouts/    # Page layouts and templates
@@ -44,52 +45,54 @@
 │   │   │   ├── css/        # Global styles and themes
 │   │   │   └── lib/        # Shared utilities and helpers
 │   │   ├── public/         # Static assets
-│   │   └── fly.toml        # Fly.io deployment config
-│   └── pb/                 # PocketBase backend
-│       ├── pb_data/        # Database files (gitignored)
-│       ├── pb_migrations/  # Database migrations
-│       └── fly.toml        # Fly.io deployment config
-├── docker-compose.yml      # Development environment setup
-└── .env                    # Environment variables
+│   │   ├── .env           # Public environment variables
+│   │   └── fly.toml       # Fly.io deployment config
+│   └── pb/               # PocketBase backend
+│       ├── pb_data/      # Database files (gitignored)
+│       └── fly.toml      # Fly.io deployment config
+├── docker-compose.yml   # Development environment
+└── README.md           # This file
 ```
 
-## 🛠 Tech Stack
+## 🛠 Development Commands
 
-- **Frontend**: [Astro](https://astro.build) - Fast, modern web framework optimized for content-driven websites
-- **Backend**: [PocketBase](https://pocketbase.io) - Open Source backend with real-time subscriptions, auth, and file storage
-- **Development**: [Docker](https://www.docker.com) - Containerization for consistent development and deployment
+| Command                    | Description                          |
+|---------------------------|--------------------------------------|
+| `bit start`               | Start development environment        |
+| `bit stop`                | Stop all services                    |
+| `bit restart [target]`    | Restart and rebuild services         |
+| `bit logs`                | View containers logs                 |
+| `bit down`                | Delete all containers and volumes    |
 
-## 🧞 Available Commands
+### Useful Options
+| Command                     | Description                          |
+|----------------------------|--------------------------------------|
+| `bit restart --skip-build` | Restart without rebuilding           |
 
-All commands are run from the project root:
+## 🚀 Deployment
 
-| Command | Description |
-|---------|-------------|
-| `bun install` | Install project dependencies |
-| `bun run dev` | Start development environment |
-| `bun run build` | Build for production |
-| `bun run start` | Start containers |
-| `bun run stop` | Stop containers |
-| `bun run down` | Stop and remove containers |
-| `bun run clean` | Remove all data (including volumes) |
+1. Make sure you have a [fly.io](https://fly.io) account and are logged in:
+   ```bash
+   fly auth login
+   ```
 
-## ⚙️ Configuration
+2. Deploy your applications:
+   ```bash
+   bit deploy        # Deploy both frontend and backend
+   bit deploy web    # Deploy only frontend
+   bit deploy pb     # Deploy only backend
+   ```
 
-### Environment Variables
+   Use `--watch` to verify deployment health:
+   ```bash
+   bit deploy --watch
+   ```
 
-Create a `.env` file in the root directory with these required variables:
-
-```env
-# PocketBase Configuration
-SUPERUSER_EMAIL=admin@example.com      # Admin dashboard login
-SUPERUSER_PASSWORD=your-password       # Admin dashboard password
-
-# Additional configurations can be added here
-```
+## 📝 Configuration
 
 ### PocketBase Admin Setup
 
-You can set default PocketBase admin credentials in `~/.bit.conf`:
+You can set default admin credentials in `~/.bit.conf`:
 
 ```json
 {
@@ -102,75 +105,10 @@ You can set default PocketBase admin credentials in `~/.bit.conf`:
 }
 ```
 
-These credentials will be used when creating new projects. If this file doesn't exist, you'll be prompted during project creation.
+## 🤝 Contributing
 
-## 🐳 Docker Development
+Pull requests are welcome! Feel free to contribute to this project.
 
-The development environment uses Docker Compose with these features:
+## 📄 License
 
-- Hot reloading for the Astro application
-- Automatic restart for PocketBase on changes
-- Volume mounting for persistent data
-- Exposed ports:
-  - `4321`: Astro frontend (http://localhost:4321)
-  - `8090`: PocketBase backend (http://localhost:8090)
-
-### Troubleshooting
-
-- If ports are already in use, stop other services using these ports or modify the port mappings in `docker-compose.yml`
-- For permission issues with Docker volumes, ensure your user has appropriate Docker permissions
-- To reset the development environment completely, use `bun run clean`
-
-## 📦 Deployment
-
-You have two options for deploying your application to fly.io:
-
-#### Option 1: Using bit deploy (Recommended)
-
-Simply run:
-```bash
-bit deploy
-```
-
-This will automatically:
-1. Launch your applications on fly.io if they don't exist yet
-2. Deploy both the frontend and backend
-3. Set up the necessary configuration
-
-#### Option 2: Manual Deployment
-
-1. Install and authenticate with fly.io:
-   ```bash
-   # Install CLI
-   curl -L https://fly.io/install.sh | sh
-   
-   # Login
-   fly auth login
-   ```
-
-2. Create your applications:
-   ```bash
-   # Create frontend app
-   cd apps/web
-   fly launch --name your-app-web
-   
-   # Create backend app
-   cd ../pb
-   fly launch --name your-app-api
-   ```
-
-3. Update the application names in both `fly.toml` files to match your chosen names.
-
-4. Deploy from the project root:
-   ```bash
-   bun run deploy
-   ```
-
-### Configuration Files
-
-- `apps/web/fly.toml`: Astro frontend configuration
-- `apps/pb/fly.toml`: PocketBase backend configuration
-
-Remember to:
-- Set up any required environment variables in the fly.io dashboard
-- Configure your domains and SSL certificates if using custom domains.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

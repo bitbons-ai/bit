@@ -38,20 +38,31 @@ export function checkCliToolInstalled(command, args = ['version']) {
 export function ensureProjectRoot() {
   let currentDir = process.cwd();
   const root = process.platform === 'win32' ? currentDir.split(path.sep)[0] : '/';
+  const maxDepth = 10; // Prevent infinite loops
+  let depth = 0;
   
-  while (currentDir !== root) {
+  while (currentDir !== root && depth < maxDepth) {
     if (fs.existsSync(path.join(currentDir, 'docker-compose.yml'))) {
+      // Found the project root
       if (currentDir !== process.cwd()) {
-        process.chdir(currentDir);
-        console.log(kleur.gray(`Changed directory to project root: ${currentDir}`));
+        try {
+          process.chdir(currentDir);
+          console.log(kleur.gray(`Changed directory to project root: ${currentDir}`));
+        } catch (error) {
+          console.error(kleur.red(`Error: Could not change to project directory: ${error.message}`));
+          return null;
+        }
       }
       return currentDir;
     }
+    
     const parentDir = path.dirname(currentDir);
     if (parentDir === currentDir) break;
     currentDir = parentDir;
+    depth++;
   }
   
   console.error(kleur.red('Error: Not in a bit project (docker-compose.yml not found in parent directories)'));
+  console.error(kleur.yellow('Tip: Make sure you are somewhere within your bit project directory'));
   return null;
 }
