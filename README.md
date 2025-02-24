@@ -27,6 +27,7 @@ Bit sets you up with a modern, battle-tested stack:
 
    ```bash
    bit new my-awesome-project
+   cd my-awesome-project
    ```
 
 3. Start to see logs coming in:
@@ -37,7 +38,7 @@ Bit sets you up with a modern, battle-tested stack:
 **That's it!** Visit your creation at:
 
 - ✨ Frontend: http://localhost:4321
-- 👔 Admin Dashboard: http://localhost:8090/\_/
+- 👔 PocketBase Admin Dashboard: http://localhost:8090/\_/
 
 ![Screenshot of default webapp](https://raw.githubusercontent.com/bitbons-ai/bit/refs/heads/main/bit-web.webp)
 
@@ -47,31 +48,26 @@ Bit sets you up with a modern, battle-tested stack:
 
 | Command                    | Description                          |
 |---------------------------|--------------------------------------|
-| `bit new <n>`             | Create a new project                 |
+| `new [options] <project-name>` | Create a new project [--pb <version>] [--astro <version>]|
 | `bit start`               | Start development environment        |
 | `bit stop`                | Stop all services                    |
-| `bit restart [target]`    | Restart and rebuild services         |
+| `bit restart [--skip-build] [target]`    | Restart and rebuild services [web, pb, empty for all]         |
 | `bit logs`                | View containers logs                 |
 | `bit down`                | Delete all containers and volumes    |
-| `bit deploy [target]`     | Deploy to production                 |
+| `bit help [command]`      | If you need help remembering how to do it    |
 
 ### Ready for the World?
 
 | Command          | What it Does                                |
 | ---------------- | ------------------------------------------ |
-| `bit deploy`     | Ship everything (parallel deployment)       |
+| `bit deploy`     | Ship everything (parallel deployment). Same as `bit deploy all`       |
 | `bit deploy web` | Ship frontend                              |
 | `bit deploy pb`  | Ship backend                               |
+| `bit deploy --watch`  | Wait and verify the deployment is healthy |
+| `bit deploy --dry-run`  | Show what would happen without making any changes |
 
 If your app doesn't exist in [fly.io](https://fly.io), it will `launch` first, then `deploy`.
 You can use `--watch` to verify deployment health.
-
-### Useful Options
-
-| Command                     | Description                          |
-|----------------------------|--------------------------------------|
-| `bit restart --skip-build` | Restart without rebuilding           |
-| `bit deploy --watch`       | Monitor deployment until healthy     |
 
 ## 📐 Project Blueprint
 
@@ -125,7 +121,7 @@ For now, you can deploy in [fly.io](https://fly.io) automagically:
 
 3. Ship it:
    ```bash
-   bit deploy # From your project's root directory
+   bit deploy # From your project's root directory, to deploy both web and pb
    ```
    or
    ```bash
