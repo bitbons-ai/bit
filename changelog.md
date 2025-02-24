@@ -1,3 +1,7 @@
+# bit 2.3.1 (2025-02-24)
+## 🐛 Bug Fixes
+- Fixed create-astro version detection
+
 # bit 2.3.0 (2025-02-21)
 
 ## ⭐️ Major Changes

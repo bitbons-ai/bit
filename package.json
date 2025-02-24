@@ -1,6 +1,6 @@
 {
   "name": "@bitbons.ai/bit",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "∴ bit → your stack sidekick. A CLI tool for scaffolding and managing modern web projects with monorepo structure, Docker Compose, PocketBase, and Astro. Features parallel deployments and smart environment handling.",
   "main": "src/cli.js",
   "type": "module",
