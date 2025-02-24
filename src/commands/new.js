@@ -368,37 +368,31 @@ async function createProjectStructure(projectPath, name, options, pbCreds) {
     const webPath = path.join(projectPath, 'apps/web');
     await fs.mkdir(webPath, { recursive: true });
 
-    // Initialize Astro project
-    const { spawn } = await import('child_process');
-    await new Promise((resolve, reject) => {
-      const astroInit = spawn(
-        "npm",
-        [
-          "create",
-          "astro@latest",
-          ".",
-          "--",
-          "--template=minimal",
-          "--no-git",
-          "--no-install",
-          "--typescript",
-          "--fancy",
-          "--yes",
-        ],
-        {
-          cwd: webPath,
-          stdio: "inherit"
-        }
-      );
-
-      astroInit.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Astro initialization failed with code ${code}`));
-        }
+    // First install create-astro globally
+    try {
+      await execa('npm', ['install', '-g', 'create-astro@latest'], {
+        stdio: 'inherit'
       });
-      astroInit.on('error', reject);
+    } catch (error) {
+      console.warn(kleur.yellow('Warning: Failed to install create-astro globally. Trying local installation...'));
+      await execa('npm', ['install', 'create-astro@latest'], {
+        cwd: webPath,
+        stdio: 'inherit'
+      });
+    }
+
+    // Initialize Astro project
+    await execa('create-astro', [
+      '.',
+      '--template=minimal',
+      '--no-git',
+      '--no-install',
+      '--typescript=strict',
+      '--skip-houston',
+      '--yes'
+    ], {
+      cwd: webPath,
+      stdio: 'inherit'
     });
 
     // Get latest versions for all dependencies
